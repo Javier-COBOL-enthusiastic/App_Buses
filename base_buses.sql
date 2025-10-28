@@ -37,8 +37,8 @@ apellido_usuario varchar(100) not null,
 DUI_usuario char(10) not null,
 correo_electronico_usuario varchar(100) not null,
 fecha_nacimiento_usuario date not null,
-usuario varchar(100) not null, -- usuario con el que se inicia sesiÚn, el nombre_usuario es su nombre de persona
-contraseÒa_usuario varchar(100) not null, -- aquÏ se va a guardar el hash de la contraseÒa
+usuario varchar(100) not null, -- usuario con el que se inicia sesi√≤n, el nombre_usuario es su nombre de persona
+contrase√±a_usuario varchar(100) not null, -- aqu√¨ se va a guardar el hash de la contrase√±a
 id_rol int not null,
 CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES roles_usuarios(id_rol)
 ON DELETE CASCADE ON UPDATE CASCADE
@@ -85,6 +85,8 @@ CONSTRAINT fk_telefonos_choferes FOREIGN KEY (id_chofer) REFERENCES choferes(id_
 ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+EXEC sp_registrar_roles
+    @nombre_rol = 'Administrador';
 
 -- Ejecutador de procedimientos almacenados
 --usuarios
@@ -99,7 +101,7 @@ EXEC sp_registrar_usuario
     @idrol = 1;
 
 
--- es mejor usar procedimientos almacenado, es m·s seguro y es m·s dificil de vulnerar que dejar el muy puro "insert-deletÈ-update"
+-- es mejor usar procedimientos almacenado, es m√°s seguro y es m√°s dificil de vulnerar que dejar el muy puro "insert-delet√©-update"
 
 -- procedimiento almacenado para guardar usuarios
 CREATE PROCEDURE sp_registrar_usuario
@@ -119,7 +121,7 @@ BEGIN
         -- SAL elegida: equipovicturbo (democraticamente)
         DECLARE @salt NVARCHAR(15) = 'equipovicturbo';
 
-        -- Hash SHA2_256(SAL + contraseÒa)
+        -- Hash SHA2_256(SAL + contrase√±a)
         DECLARE @hash VARBINARY(32) =
             HASHBYTES('SHA2_256', @salt + @password);
 
@@ -130,7 +132,7 @@ BEGIN
             correo_electronico_usuario,
             fecha_nacimiento_usuario,
             usuario,
-            contraseÒa_usuario,
+            contrase√±a_usuario,
             id_rol
         )
         VALUES (
@@ -336,3 +338,4 @@ BEGIN
     END CATCH
 END;
 GO
+
