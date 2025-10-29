@@ -44,8 +44,8 @@ apellido_usuario varchar(100) not null,
 DUI_usuario char(10) not null,
 correo_electronico_usuario varchar(100) not null,
 fecha_nacimiento_usuario date not null,
-usuario varchar(100) not null, -- usuario con el que se inicia sesiÚn, el nombre_usuario es su nombre de persona
-contraseÒa_usuario varchar(100) not null, -- aquÏ se va a guardar el hash de la contraseÒa
+usuario varchar(100) not null, -- usuario con el que se inicia sesi√≤n, el nombre_usuario es su nombre de persona
+contrase√±a_usuario varchar(100) not null, -- aqu√¨ se va a guardar el hash de la contrase√±a
 id_rol int not null,
 CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES roles_usuarios(id_rol)
 ON DELETE CASCADE ON UPDATE CASCADE
@@ -90,116 +90,7 @@ CONSTRAINT fk_telefonos_choferes FOREIGN KEY (id_chofer) REFERENCES choferes(id_
 ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-
-
-
-
--- Ejecutador de procedimientos almacenados
-
--- roles de usuario
-EXEC sp_registrar_roles
-    @nombre_rol = 'Administrador';
-
---usuarios
-EXEC sp_registrar_usuario
-    @nombre = 'Daniel',
-    @apellido = 'Salguero',
-    @dui = '12345678-9',
-    @correo = 'daniel@example.com',
-    @fecha = '2000-01-01',
-    @usuario = 'dsalguero',
-    @password = 'Academia2025',
-    @idrol = 1;
-
--- telefonos de usuario
-EXEC sp_registrar_telefonos_usuarios
-    @telefonousuario = '7123-4567',
-    @idusuarioo = 1; -- aquÌ va el id del usuario, yo como ya habÌa hecho pruebas ya no es el id 1, solo vean cual es el id que corresponde al usuario que quieran asignarle el telefono
-   
--- rutas
-EXEC sp_registrar_rutas 
-    @nombre_ruta = 'Ruta 101',
-    @descripcion_ruta = 'Ruta que va del Centro hasta la casa de Javier';
-
-EXEC sp_registrar_rutas 
-    @nombre_ruta = 'Ruta 101-B',
-    @descripcion_ruta = 'Ruta que va del Centro hasta la casa de Enrique';
-
--- Insertar una coordenada de prueba
-EXEC sp_registrar_coordenadas 
-    @latitud = 13.6990000,
-    @longitud = -89.1910000;
-
--- Insertar otra coordenada
-EXEC sp_registrar_coordenadas 
-    @latitud = 13.7005000,
-    @longitud = -89.1902000;
-
-EXEC sp_registrar_coordenadas @latitud=13.6991000, @longitud=-89.1911000;
-EXEC sp_registrar_coordenadas @latitud=13.6992000, @longitud=-89.1912000;
-EXEC sp_registrar_coordenadas @latitud=13.6993000, @longitud=-89.1913000;
-EXEC sp_registrar_coordenadas @latitud=13.6994000, @longitud=-89.1914000;
-EXEC sp_registrar_coordenadas @latitud=13.6995000, @longitud=-89.1915000;
-EXEC sp_registrar_coordenadas @latitud=13.6996000, @longitud=-89.1916000;
-EXEC sp_registrar_coordenadas @latitud=13.6997000, @longitud=-89.1917000;
-EXEC sp_registrar_coordenadas @latitud=13.6998000, @longitud=-89.1918000;
-EXEC sp_registrar_coordenadas @latitud=13.6999000, @longitud=-89.1919000;
-EXEC sp_registrar_coordenadas @latitud=13.7000000, @longitud=-89.1920000;
-EXEC sp_registrar_coordenadas @latitud=13.7001000, @longitud=-89.1921000;
-EXEC sp_registrar_coordenadas @latitud=13.7002000, @longitud=-89.1922000;
-EXEC sp_registrar_coordenadas @latitud=13.7003000, @longitud=-89.1923000;
-EXEC sp_registrar_coordenadas @latitud=13.7004000, @longitud=-89.1924000;
-EXEC sp_registrar_coordenadas @latitud=13.7005000, @longitud=-89.1925000;
-
--- Ruta 101
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=1, @orden=1;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=2, @orden=2;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=3, @orden=3;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=4, @orden=4;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=5, @orden=5;
-
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=6, @orden=6;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=7, @orden=7;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=8, @orden=8;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=9, @orden=9;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=10, @orden=10;
-
--- consulta para ver las coordenadas de una ruta, ordenada
-SELECT id_punto_ruta, longitud, latitud, nombre_ruta from puntos_ruta pr
-INNER JOIN rutas r on pr.id_ruta = r.id_ruta
-INNER JOIN coordenadas c on pr.id_coordenada = c.id_coordenada
-ORDER BY pr.orden ASC
-
--- buses
-EXEC sp_registrar_buses @numero_placa='P000 101', @capacidad=40, @id_ruta=1, @id_usuario=1;
-EXEC sp_registrar_buses @numero_placa='P 9 1A2', @capacidad=30, @id_ruta=2, @id_usuario=1;
-
-
--- consulta para que aparezca una sola vez la placa si aparece en varios registros
-SELECT 
-CASE WHEN ROW_NUMBER() OVER(PARTITION BY b.numero_placa ORDER BY pr.orden) = 1 -- el primer registro donde aparece el numero_placa va a mostrar numero_placa
-THEN b.numero_placa 
-ELSE '' 
-END AS numero_placa,
-c.latitud, c.longitud, r.nombre_ruta
-FROM buses b
-INNER JOIN rutas r ON b.id_ruta = r.id_ruta
-INNER JOIN puntos_ruta pr ON pr.id_ruta = r.id_ruta
-INNER JOIN coordenadas c ON pr.id_coordenada = c.id_coordenada
-ORDER BY b.numero_placa, pr.orden;
-
--- choferes
-EXEC sp_registrar_choferes @nombre='Juan', @apellido='PÈrez', @dui='12345678-9', @fecha_nacimiento='1985-05-12', @id_bus=1;
-EXEC sp_registrar_choferes @nombre='MarÌa', @apellido='GÛmez', @dui='98765432-1', @fecha_nacimiento='1990-08-22', @id_bus=2;
-
--- telefonos_choferes
-EXEC sp_registrar_telefonos_choferes @telefono='7777-1111', @id_chofer=1;
-EXEC sp_registrar_telefonos_choferes @telefono='7777-2222', @id_chofer=1;
-EXEC sp_registrar_telefonos_choferes @telefono='8888-3333', @id_chofer=2;
-EXEC sp_registrar_telefonos_choferes @telefono='8888-4444', @id_chofer=2;
-
-
--- es mejor usar procedimientos almacenado, es m·s seguro y es m·s dificil de vulnerar que dejar el muy puro "insert-deletÈ-update"
+-- es mejor usar procedimientos almacenado, es m√°s seguro y es m√°s dificil de vulnerar que dejar el muy puro "insert-delet√©-update"
 
 -- procedimiento almacenado para guardar usuarios
 CREATE PROCEDURE sp_registrar_usuario
@@ -219,7 +110,7 @@ BEGIN
         -- SAL elegida: equipovicturbo (democraticamente)
         DECLARE @salt NVARCHAR(15) = 'equipovicturbo';
 
-        -- Hash SHA2_256(SAL + contraseÒa)
+        -- Hash SHA2_256(SAL + contrase√±a)
         DECLARE @hash VARBINARY(32) =
             HASHBYTES('SHA2_256', @salt + @password);
 
@@ -230,7 +121,7 @@ BEGIN
             correo_electronico_usuario,
             fecha_nacimiento_usuario,
             usuario,
-            contraseÒa_usuario,
+            contrase√±a_usuario,
             id_rol
         )
         VALUES (
@@ -413,3 +304,111 @@ BEGIN
 END;
 GO
 
+
+
+
+
+
+-- Ejecutador de procedimientos almacenados
+
+-- roles de usuario
+EXEC sp_registrar_roles
+    @nombre_rol = 'Administrador';
+
+--usuarios
+EXEC sp_registrar_usuario
+    @nombre = 'Daniel',
+    @apellido = 'Salguero',
+    @dui = '12345678-9',
+    @correo = 'daniel@example.com',
+    @fecha = '2000-01-01',
+    @usuario = 'dsalguero',
+    @password = 'Academia2025',
+    @idrol = 1;
+
+-- telefonos de usuario
+EXEC sp_registrar_telefonos_usuarios
+    @telefonousuario = '7123-4567',
+    @idusuarioo = 1; -- aqu√≠ va el id del usuario, yo como ya hab√≠a hecho pruebas ya no es el id 1, solo vean cual es el id que corresponde al usuario que quieran asignarle el telefono
+   
+-- rutas
+EXEC sp_registrar_rutas 
+    @nombre_ruta = 'Ruta 101',
+    @descripcion_ruta = 'Ruta que va del Centro hasta la casa de Javier';
+
+EXEC sp_registrar_rutas 
+    @nombre_ruta = 'Ruta 101-B',
+    @descripcion_ruta = 'Ruta que va del Centro hasta la casa de Enrique';
+
+-- Insertar una coordenada de prueba
+EXEC sp_registrar_coordenadas 
+    @latitud = 13.6990000,
+    @longitud = -89.1910000;
+
+-- Insertar otra coordenada
+EXEC sp_registrar_coordenadas 
+    @latitud = 13.7005000,
+    @longitud = -89.1902000;
+
+EXEC sp_registrar_coordenadas @latitud=13.6991000, @longitud=-89.1911000;
+EXEC sp_registrar_coordenadas @latitud=13.6992000, @longitud=-89.1912000;
+EXEC sp_registrar_coordenadas @latitud=13.6993000, @longitud=-89.1913000;
+EXEC sp_registrar_coordenadas @latitud=13.6994000, @longitud=-89.1914000;
+EXEC sp_registrar_coordenadas @latitud=13.6995000, @longitud=-89.1915000;
+EXEC sp_registrar_coordenadas @latitud=13.6996000, @longitud=-89.1916000;
+EXEC sp_registrar_coordenadas @latitud=13.6997000, @longitud=-89.1917000;
+EXEC sp_registrar_coordenadas @latitud=13.6998000, @longitud=-89.1918000;
+EXEC sp_registrar_coordenadas @latitud=13.6999000, @longitud=-89.1919000;
+EXEC sp_registrar_coordenadas @latitud=13.7000000, @longitud=-89.1920000;
+EXEC sp_registrar_coordenadas @latitud=13.7001000, @longitud=-89.1921000;
+EXEC sp_registrar_coordenadas @latitud=13.7002000, @longitud=-89.1922000;
+EXEC sp_registrar_coordenadas @latitud=13.7003000, @longitud=-89.1923000;
+EXEC sp_registrar_coordenadas @latitud=13.7004000, @longitud=-89.1924000;
+EXEC sp_registrar_coordenadas @latitud=13.7005000, @longitud=-89.1925000;
+
+-- Ruta 101
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=1, @orden=1;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=2, @orden=2;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=3, @orden=3;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=4, @orden=4;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=5, @orden=5;
+
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=6, @orden=6;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=7, @orden=7;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=8, @orden=8;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=9, @orden=9;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=10, @orden=10;
+
+-- consulta para ver las coordenadas de una ruta, ordenada
+SELECT id_punto_ruta, longitud, latitud, nombre_ruta from puntos_ruta pr
+INNER JOIN rutas r on pr.id_ruta = r.id_ruta
+INNER JOIN coordenadas c on pr.id_coordenada = c.id_coordenada
+ORDER BY pr.orden ASC
+
+-- buses
+EXEC sp_registrar_buses @numero_placa='P000 101', @capacidad=40, @id_ruta=1, @id_usuario=1;
+EXEC sp_registrar_buses @numero_placa='P 9 1A2', @capacidad=30, @id_ruta=2, @id_usuario=1;
+
+
+-- consulta para que aparezca una sola vez la placa si aparece en varios registros
+SELECT 
+CASE WHEN ROW_NUMBER() OVER(PARTITION BY b.numero_placa ORDER BY pr.orden) = 1 -- el primer registro donde aparece el numero_placa va a mostrar numero_placa
+THEN b.numero_placa 
+ELSE '' 
+END AS numero_placa,
+c.latitud, c.longitud, r.nombre_ruta
+FROM buses b
+INNER JOIN rutas r ON b.id_ruta = r.id_ruta
+INNER JOIN puntos_ruta pr ON pr.id_ruta = r.id_ruta
+INNER JOIN coordenadas c ON pr.id_coordenada = c.id_coordenada
+ORDER BY b.numero_placa, pr.orden;
+
+-- choferes
+EXEC sp_registrar_choferes @nombre='Juan', @apellido='P√©rez', @dui='12345678-9', @fecha_nacimiento='1985-05-12', @id_bus=1;
+EXEC sp_registrar_choferes @nombre='Mar√≠a', @apellido='G√≥mez', @dui='98765432-1', @fecha_nacimiento='1990-08-22', @id_bus=2;
+
+-- telefonos_choferes
+EXEC sp_registrar_telefonos_choferes @telefono='7777-1111', @id_chofer=1;
+EXEC sp_registrar_telefonos_choferes @telefono='7777-2222', @id_chofer=1;
+EXEC sp_registrar_telefonos_choferes @telefono='8888-3333', @id_chofer=2;
+EXEC sp_registrar_telefonos_choferes @telefono='8888-4444', @id_chofer=2;
