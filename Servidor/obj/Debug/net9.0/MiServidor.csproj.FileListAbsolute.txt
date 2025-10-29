@@ -58,10 +58,10 @@ C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\staticweb
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\staticwebassets.development.json
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\staticwebassets.build.endpoints.json
-C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\MiServidor.csproj.Up2Date
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\MiServidor.dll
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\refint\MiServidor.dll
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\MiServidor.pdb
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\MiServidor.genruntimeconfig.cache
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\ref\MiServidor.dll
+C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

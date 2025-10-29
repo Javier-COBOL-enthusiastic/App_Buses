@@ -6,7 +6,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("PermitirTodo", policy =>
     {
         policy
-            .AllowAnyOrigin()
+            .WithOrigins("http://localhost:8080")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -31,10 +31,16 @@ app.UseAuthorization();
 
 
 
-app.MapGet("/dir1", () =>
+app.MapGet("/coords/{rutaId}", (int rutaId) =>
 {
-
-    string rutaArchivo = @"C:\Users\works\OneDrive\Escritorio\sensorlog_2.csv";    
+    string rutaArchivo = rutaId switch
+    {
+        1 => @"C:\Users\works\OneDrive\Escritorio\sensorlog_pos_20251002_174122.csv",
+        2 => @"C:\Users\works\OneDrive\Escritorio\sensorlog_pos_20251008_065710.csv",
+        3 => @"C:\Users\works\OneDrive\Escritorio\sensorlog_2.csv",
+        _ => throw new ArgumentException("Ruta no encontrada")
+    };
+    
     var ruta = new Ruta();
     using (StreamReader sr = new StreamReader(rutaArchivo))
     {
@@ -47,16 +53,7 @@ app.MapGet("/dir1", () =>
             ruta.Lon.Add(float.Parse(Array[2]));
         }
     }
-    return ruta;
-    /*var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;*/
+    return ruta;    
 })
 .WithName("GetCoords");
 
