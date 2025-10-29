@@ -29,14 +29,26 @@ app.UseCors("PermitirTodo");
 
 app.UseAuthorization();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+
 
 app.MapGet("/dir1", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+
+    string rutaArchivo = @"C:\Users\works\OneDrive\Escritorio\sensorlog_2.csv";    
+    var ruta = new Ruta();
+    using (StreamReader sr = new StreamReader(rutaArchivo))
+    {
+        string linea;
+        sr.ReadLine();
+        while ((linea = sr.ReadLine()) != null)
+        {
+            var Array = linea.Split(',');
+            ruta.Lat.Add(float.Parse(Array[1]));
+            ruta.Lon.Add(float.Parse(Array[2]));
+        }
+    }
+    return ruta;
+    /*var forecast =  Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -44,13 +56,14 @@ app.MapGet("/dir1", () =>
             summaries[Random.Shared.Next(summaries.Length)]
         ))
         .ToArray();
-    return forecast;
+    return forecast;*/
 })
-.WithName("GetWeatherForecast");
+.WithName("GetCoords");
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+public class Ruta
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public List<float> Lat { get; set; } = new List<float>();
+    public List<float> Lon { get; set; } = new List<float>();
 }

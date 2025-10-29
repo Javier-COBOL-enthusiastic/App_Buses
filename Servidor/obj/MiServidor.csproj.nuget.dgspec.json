@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\works\\source\\repos\\MiServidor\\MiServidor.csproj": {}
+    "C:\\Users\\works\\OneDrive\\Escritorio\\App_Buses\\Servidor\\MiServidor.csproj": {}
   },
   "projects": {
-    "C:\\Users\\works\\source\\repos\\MiServidor\\MiServidor.csproj": {
+    "C:\\Users\\works\\OneDrive\\Escritorio\\App_Buses\\Servidor\\MiServidor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\works\\source\\repos\\MiServidor\\MiServidor.csproj",
+        "projectUniqueName": "C:\\Users\\works\\OneDrive\\Escritorio\\App_Buses\\Servidor\\MiServidor.csproj",
         "projectName": "MiServidor",
-        "projectPath": "C:\\Users\\works\\source\\repos\\MiServidor\\MiServidor.csproj",
+        "projectPath": "C:\\Users\\works\\OneDrive\\Escritorio\\App_Buses\\Servidor\\MiServidor.csproj",
         "packagesPath": "C:\\Users\\works\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\works\\source\\repos\\MiServidor\\obj\\",
+        "outputPath": "C:\\Users\\works\\OneDrive\\Escritorio\\App_Buses\\Servidor\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
