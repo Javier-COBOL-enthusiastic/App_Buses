@@ -1,9 +1,9 @@
-/*const map = L.map('map').setView([13.69294, -89.21819], 8);*/
+const map = L.map('map').setView([13.69294, -89.21819], 8);
+
 var num = 1;
 var ruta = null;
 bt1 = document.getElementById("aumentar")
 bt2 = document.getElementById("disminuir")
-
 
 bt1.addEventListener('click', () => {
   num = ++num > 3 ? 1 : num;
@@ -32,11 +32,10 @@ function cargar_ruta(valor){
           let lat = arr["lat"][i];
           let lon = arr["lon"][i];
           if (!isNaN(lat) && !isNaN(lon)) {
-              console.log(lat);
-              //points.push(L.latLng(lat, lon));
+              points.push(L.latLng(lat, lon));
           }
         }  
-      //mostrar_linea(points);                
+      mostrar_linea(points);                
       }          
       );
     }
@@ -49,7 +48,7 @@ function mostrar_linea(points){
   ruta.addTo(map);  
 }
 
-/*L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '© OpenStreetMap contributors'
-}).addTo(map);*/
+}).addTo(map);
