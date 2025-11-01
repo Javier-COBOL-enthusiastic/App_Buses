@@ -6,7 +6,7 @@ bt1 = document.getElementById("aumentar")
 bt2 = document.getElementById("disminuir")
 
 bt1.addEventListener('click', () => {
-  num = ++num > 3 ? 3 : num;
+  num = ++num > 3 ? 1 : num;
   if(ruta != null){
     ruta.remove();
   }
@@ -14,7 +14,7 @@ bt1.addEventListener('click', () => {
 });
 
 bt2.addEventListener('click', () => {
-  num = --num < 1 ? 1 : num;  
+  num = --num < 1 ? 3 : num;  
   if(ruta != null){
     ruta.remove();
   }
