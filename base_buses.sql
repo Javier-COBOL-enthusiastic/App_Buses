@@ -92,7 +92,7 @@ CREATE PROCEDURE sp_registrar_usuario
     @correo NVARCHAR(100),
     @fecha DATE,
     @usuario NVARCHAR(100),
-    @password NVARCHAR(200),
+    @password NVARCHAR(200)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -112,7 +112,7 @@ BEGIN
             correo_electronico_usuario,
             fecha_nacimiento_usuario,
             usuario,
-            contraseña_usuario,
+            contraseña_usuario
         )
         VALUES (
             @nombre,
@@ -121,7 +121,7 @@ BEGIN
             @correo,
             @fecha,
             @usuario,
-            CONVERT(VARCHAR(100), @hash, 2),
+            CONVERT(VARCHAR(100), @hash, 2)
         );
     END TRY
     BEGIN CATCH
@@ -284,7 +284,7 @@ EXEC sp_registrar_usuario
     @correo = 'daniel@example.com',
     @fecha = '2000-01-01',
     @usuario = 'dsalguero',
-    @password = 'Academia2025',
+    @password = 'Academia2025'
 
 -- telefonos de usuario
 EXEC sp_registrar_telefonos_usuarios
@@ -372,5 +372,4 @@ EXEC sp_registrar_telefonos_choferes @telefono='7777-1111', @id_chofer=1;
 EXEC sp_registrar_telefonos_choferes @telefono='7777-2222', @id_chofer=1;
 EXEC sp_registrar_telefonos_choferes @telefono='8888-3333', @id_chofer=2;
 EXEC sp_registrar_telefonos_choferes @telefono='8888-4444', @id_chofer=2;
-
 
