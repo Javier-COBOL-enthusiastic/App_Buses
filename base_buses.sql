@@ -276,10 +276,6 @@ GO
 
 -- Ejecutador de procedimientos almacenados
 
--- roles de usuario
-EXEC sp_registrar_roles
-    @nombre_rol = 'Administrador';
-
 --usuarios
 EXEC sp_registrar_usuario
     @nombre = 'Daniel',
@@ -289,7 +285,6 @@ EXEC sp_registrar_usuario
     @fecha = '2000-01-01',
     @usuario = 'dsalguero',
     @password = 'Academia2025',
-    @idrol = 1;
 
 -- telefonos de usuario
 EXEC sp_registrar_telefonos_usuarios
@@ -377,4 +372,5 @@ EXEC sp_registrar_telefonos_choferes @telefono='7777-1111', @id_chofer=1;
 EXEC sp_registrar_telefonos_choferes @telefono='7777-2222', @id_chofer=1;
 EXEC sp_registrar_telefonos_choferes @telefono='8888-3333', @id_chofer=2;
 EXEC sp_registrar_telefonos_choferes @telefono='8888-4444', @id_chofer=2;
+
 
