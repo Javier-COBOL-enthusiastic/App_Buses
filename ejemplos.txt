@@ -1,0 +1,118 @@
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+// Lista de ejemplo (recurso)
+var coordsList = new List<int> { 10, 20, 30 };
+
+// ======================
+// GET → obtener datos
+// ======================
+app.MapGet("/coords", () =>
+{
+    return Results.Json(coordsList);
+});
+
+// GET con parámetro
+app.MapGet("/coords/{index:int}", (int index) =>
+{
+    if (index < 0 || index >= coordsList.Count)
+        return Results.NotFound(new { mensaje = "Índice no válido" });
+
+    return Results.Json(coordsList[index]);
+});
+
+// ======================
+// POST → crear nuevo dato
+// ======================
+app.MapPost("/coords", (CoordsModel datos) =>
+{
+    coordsList.Add(datos.Valor);
+    return Results.Json(new { mensaje = "Valor agregado", coordsList });
+});
+
+// ======================
+// PUT → reemplazar dato existente
+// ======================
+app.MapPut("/coords/{index:int}", (int index, CoordsModel datos) =>
+{
+    if (index < 0 || index >= coordsList.Count)
+        return Results.BadRequest(new { mensaje = "Índice inválido" });
+
+    coordsList[index] = datos.Valor;
+    return Results.Json(new { mensaje = "Valor actualizado", coordsList });
+});
+
+// ======================
+// PATCH → actualizar parcialmente
+// ======================
+app.MapPatch("/coords/{index:int}", (int index, CoordsModel datos) =>
+{
+    if (index < 0 || index >= coordsList.Count)
+        return Results.BadRequest(new { mensaje = "Índice inválido" });
+
+    if (datos.Valor != null)
+        coordsList[index] = datos.Valor;
+
+    return Results.Json(new { mensaje = "Valor actualizado parcialmente", coordsList });
+});
+
+// ======================
+// DELETE → eliminar dato
+// ======================
+app.MapDelete("/coords/{index:int}", (int index) =>
+{
+    if (index < 0 || index >= coordsList.Count)
+        return Results.BadRequest(new { mensaje = "Índice inválido" });
+
+    coordsList.RemoveAt(index);
+    return Results.Json(new { mensaje = "Valor eliminado", coordsList });
+});
+
+// Modelo para POST/PUT/PATCH
+public class CoordsModel
+{
+    public int? Valor { get; set; } // Nullable para PATCH
+}
+
+app.Run();
+
+
+
+// GET toda la lista
+fetch("http://localhost:5000/coords")
+  .then(res => res.json())
+  .then(data => console.log("GET lista:", data));
+
+// POST agregar nuevo valor
+fetch("http://localhost:5000/coords", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ valor: 50 })
+})
+  .then(res => res.json())
+  .then(data => console.log("POST:", data));
+
+// PUT reemplazar valor
+fetch("http://localhost:5000/coords/1", {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ valor: 99 })
+})
+  .then(res => res.json())
+  .then(data => console.log("PUT:", data));
+
+// PATCH actualizar parcialmente
+fetch("http://localhost:5000/coords/2", {
+  method: "PATCH",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ valor: 77 })
+})
+  .then(res => res.json())
+  .then(data => console.log("PATCH:", data));
+
+// DELETE eliminar valor
+fetch("http://localhost:5000/coords/0", {
+  method: "DELETE"
+})
+  .then(res => res.json())
+  .then(data => console.log("DELETE:", data));

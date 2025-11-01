@@ -1,5 +1,9 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5000);
+});
 
 builder.Services.AddCors(options =>
 {
@@ -29,7 +33,7 @@ app.UseCors("PermitirTodo");
 
 app.UseAuthorization();
 
-
+app.MapPost("/login/")
 
 app.MapGet("/coords/{rutaId}", (int rutaId) =>
 {
