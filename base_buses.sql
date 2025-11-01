@@ -8,11 +8,6 @@ create database bustrack;
 
 use bustrack;
 
-create table roles_usuarios(
-id_rol int not null primary key identity(1,1),
-nombre_rol varchar(30) not null
-);
-
 CREATE TABLE coordenadas (
 id_coordenada INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 latitud DECIMAL(10, 7) NOT NULL,
@@ -46,9 +41,6 @@ correo_electronico_usuario varchar(100) not null,
 fecha_nacimiento_usuario date not null,
 usuario varchar(100) not null, -- usuario con el que se inicia sesiòn, el nombre_usuario es su nombre de persona
 contraseña_usuario varchar(100) not null, -- aquì se va a guardar el hash de la contraseña
-id_rol int not null,
-CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES roles_usuarios(id_rol)
-ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 create table telefonos_usuarios(
@@ -101,7 +93,6 @@ CREATE PROCEDURE sp_registrar_usuario
     @fecha DATE,
     @usuario NVARCHAR(100),
     @password NVARCHAR(200),
-    @idrol int
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -122,7 +113,6 @@ BEGIN
             fecha_nacimiento_usuario,
             usuario,
             contraseña_usuario,
-            id_rol
         )
         VALUES (
             @nombre,
@@ -132,7 +122,6 @@ BEGIN
             @fecha,
             @usuario,
             CONVERT(VARCHAR(100), @hash, 2),
-            @idrol
         );
     END TRY
     BEGIN CATCH
@@ -140,30 +129,6 @@ BEGIN
     END CATCH
 END;
 GO
-
--- procedimiento almacenado para guardar roles de usuario
-CREATE PROCEDURE sp_registrar_roles
-    @nombre_rol VARCHAR(30)
-    
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-
-        INSERT INTO roles_usuarios(
-            nombre_rol
-        )
-        VALUES (
-            @nombre_rol
-        );
-    END TRY
-    BEGIN CATCH
-        THROW;
-    END CATCH
-END;
-GO
-
 
 -- procedimiento almacenado para guardar telefonos de usuarios
 
@@ -412,3 +377,4 @@ EXEC sp_registrar_telefonos_choferes @telefono='7777-1111', @id_chofer=1;
 EXEC sp_registrar_telefonos_choferes @telefono='7777-2222', @id_chofer=1;
 EXEC sp_registrar_telefonos_choferes @telefono='8888-3333', @id_chofer=2;
 EXEC sp_registrar_telefonos_choferes @telefono='8888-4444', @id_chofer=2;
+
