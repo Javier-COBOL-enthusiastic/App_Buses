@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BusTrackSV — Iniciar sesión</title>
+  <link rel="icon" href="/assets/img/logo-bus.png">
+  <link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+  <div id="appHeader"></div>
+
+  <main class="auth-shell">
+    <aside class="auth-left">
+      <div class="brand">
+        <h1>Buses S.A.</h1>
+        <img class="logo-bus" src="/assets/img/logo-bus.png" alt="Bus">
+        <p>Monitorea tus rutas y equipos en tiempo real.</p>
+      </div>
+    </aside>
+
+    <section class="auth-right">
+      <div class="card pad form-card">
+        <h2 class="h">¡Bienvenido!</h2>
+        <p class="muted" style="margin-bottom:.8rem">Inicie sesión con sus datos</p>
+        <form id="loginForm" class="stack">
+          <div><label class="label" for="email">Usuario o correo</label><input class="input" type="email" id="email" required></div>
+          <div><label class="label" for="pass">Contraseña</label><input class="input" type="password" id="pass" required minlength="6"></div>
+          <button class="btn" type="submit">Iniciar sesión</button>
+          <div class="row space"><a class="muted" href="#" id="forgot">¿Olvidaste tu contraseña?</a><a href="./register.html">Registrarse</a></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="appFooter"></div>
+
+  <!-- Modal Reset Password -->
+  <div class="modal" id="modalReset">
+    <div class="panel card pad">
+      <div class="row space"><div class="h">Restablecer contraseña</div><button class="btn ghost" onclick="document.getElementById('modalReset').classList.remove('open')">Cerrar</button></div>
+      <form id="resetStep1" class="stack">
+        <div><label class="label">Correo</label><input class="input" id="rEmail" type="email" required></div>
+        <button class="btn" type="submit">Enviar código</button>
+      </form>
+      <form id="resetStep2" class="stack" style="display:none">
+        <div class="row" style="gap:1rem;flex-wrap:wrap">
+          <div style="flex:1 1 180px"><label class="label">Código</label><input class="input" id="rCode" required></div>
+          <div style="flex:1 1 220px"><label class="label">Nueva contraseña</label><input class="input" id="rNew" type="password" minlength="6" required></div>
+        </div>
+        <button class="btn ok" type="submit">Cambiar contraseña</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-wrap"></div>
+
+  <script type="module">
+    import { renderHeader, renderFooter } from "../assets/js/components.js";
+    import { toast, openModal, setThemeToggle } from "../assets/js/ui.js";
+    import { api } from "../assets/js/api.js";
+    import { storage } from "../assets/js/storage.js";
+
+    renderHeader({}); renderFooter();
+
+    // Importante: NO auto-redireccionamos si hay token. Mostramos el form siempre.
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const pass  = document.getElementById('pass').value.trim();
+      try{
+        const r = await api.login(email, pass);
+        storage.token = r.token; storage.user = r.user;
+        toast('Inicio de sesión correcto','ok');
+        setTimeout(()=> location.href='./dashboard.html', 350);
+      }catch(err){ toast(err.message || 'Credenciales inválidas','bad'); }
+    });
+
+    // Olvidaste tu contraseña
+    document.getElementById('forgot').addEventListener('click',(e)=>{ e.preventDefault(); openModal('modalReset'); });
+    const s1 = document.getElementById('resetStep1');
+    const s2 = document.getElementById('resetStep2');
+    let resetEmail = "";
+    s1.addEventListener('submit',(e)=>{
+      e.preventDefault();
+      resetEmail = document.getElementById('rEmail').value.trim();
+      if(!api.mockUserExists(resetEmail)) return toast('Ese correo no está registrado','bad');
+      const code = api.issueResetCode(resetEmail);
+      toast('Código enviado: '+code+' (mock)', 'ok');
+      s1.style.display='none'; s2.style.display='grid';
+    });
+    s2.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      try{
+        await api.resetPassword(resetEmail, document.getElementById('rCode').value.trim(), document.getElementById('rNew').value);
+        toast('Contraseña actualizada','ok');
+        document.getElementById('modalReset').classList.remove('open');
+        s1.style.display='grid'; s2.style.display='none';
+      }catch(err){ toast(err.message || 'No se pudo actualizar','bad'); }
+    });
+  </script>
+</body>
+</html>
