@@ -1,4 +1,6 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using BusTrackSV.API;
+
+var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddCors(options =>
@@ -29,9 +31,9 @@ app.UseCors("PermitirTodo");
 
 app.UseAuthorization();
 
+app.MapAuth();
 
-
-app.MapGet("/coords/{rutaId}", (int rutaId) =>
+/*app.MapGet("/coords/{rutaId}", (int rutaId) =>
 {
     string rutaArchivo = rutaId switch
     {
@@ -57,6 +59,18 @@ app.MapGet("/coords/{rutaId}", (int rutaId) =>
 })
 .WithName("GetCoords");
 
+app.MapPost("/auth/register", (Modelos.Usuario user) =>
+{
+    System.Console.WriteLine(user.name);
+    return Results.Json(new { mensaje = "Valor agregado" });
+}).WithName("Register");
+
+app.MapPost("/auth/login", (Modelos.LoginAttempt lg) =>
+{
+    System.Console.Write(lg.email);
+    return Result.Json(new { mensaje = "Exito en la vida" });
+});
+
 app.Run();
 
 public class Ruta
@@ -64,3 +78,4 @@ public class Ruta
     public List<float> Lat { get; set; } = new List<float>();
     public List<float> Lon { get; set; } = new List<float>();
 }
+*/

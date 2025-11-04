@@ -64,4 +64,3 @@ C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\refint\Mi
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\MiServidor.pdb
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\MiServidor.genruntimeconfig.cache
 C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\ref\MiServidor.dll
-C:\Users\works\OneDrive\Escritorio\App_Buses\Servidor\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
