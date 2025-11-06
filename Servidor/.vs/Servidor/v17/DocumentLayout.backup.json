@@ -70,8 +70,7 @@
               "RelativeToolTip": "Services\\BusService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-04T18:02:42.935Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-04T18:02:42.935Z"
             },
             {
               "$type": "Document",
@@ -83,8 +82,7 @@
               "RelativeToolTip": "Modelos\\Bus.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-04T18:01:00.367Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-04T18:01:00.367Z"
             },
             {
               "$type": "Document",
@@ -96,8 +94,7 @@
               "RelativeToolTip": "Services\\AuthService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-04T15:54:55.025Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-04T15:54:55.025Z"
             },
             {
               "$type": "Document",
@@ -107,7 +104,7 @@
               "RelativeDocumentMoniker": "Init.cs",
               "ToolTip": "C:\\Users\\works\\OneDrive\\Escritorio\\App_Buses\\Servidor\\Init.cs",
               "RelativeToolTip": "Init.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAAcwCEAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-04T15:49:07.719Z",
               "EditorCaption": ""
@@ -122,8 +119,7 @@
               "RelativeToolTip": "Modelos\\Usuario.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-04T15:45:24.561Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-04T15:45:24.561Z"
             },
             {
               "$type": "Document",
@@ -135,8 +131,7 @@
               "RelativeToolTip": "Controllers\\AuthController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-04T15:33:05.611Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-04T15:33:05.611Z"
             }
           ]
         }

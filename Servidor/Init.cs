@@ -33,6 +33,8 @@ app.UseAuthorization();
 
 app.MapAuth();
 
+app.Run();
+
 /*app.MapGet("/coords/{rutaId}", (int rutaId) =>
 {
     string rutaArchivo = rutaId switch

@@ -17,12 +17,13 @@ namespace BusTrackSV.API
             {
                 try
                 {
+                    System.Console.WriteLine(u.Nombre);
                     AuthService.Registrar(u);
                     return Results.Json(new { mensaje = u });
                 }
                 catch (Exception ex)
                 {
-                    return Results.Conflict(ex);
+                    return Results.Conflict(ex.Message);
                 }
             });
 
