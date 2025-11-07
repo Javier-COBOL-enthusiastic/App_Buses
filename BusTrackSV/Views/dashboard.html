@@ -1,189 +1,89 @@
-<!doctype html>
-<html lang="es" data-theme="light">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BusTrackSV — Panel</title>
-  <link rel="icon" href="/assets/img/logo-bus.png">
-  <link rel="stylesheet" href="/assets/css/main.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BustrackSV - Main</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>  
 </head>
 <body>
-  <div id="appHeader"></div>
+  <header class="top-bar">
+  <button class="menu-btn" aria-label="Open menu">
+    <span class="line"></span>
+    <span class="line"></span>
+  </button>
+  <h1 class="top-title">BusTrackSV</h1>
+</header>
 
-  <main class="layout">
-    <section class="card pad">
-      <div class="row space">
-        <h2 class="h">Mis Rutas</h2>
-        <div class="row" style="gap:.6rem">
-          <button class="btn" id="btnNuevaRuta">Registrar nueva ruta</button>
-          <button class="btn danger" id="btnToggleDelete" title="Borrar rutas">Eliminar rutas</button>
-        </div>
-      </div>
 
-      <div class="card" style="overflow:auto">
-        <table class="table" id="routesTable">
-          <thead>
-            <tr>
-              <th>Nombre de la Ruta</th>
-              <th>Activas ahora</th>
-              <th>Inactivas</th>
-              <th>Total</th>
-              <th style="width:240px"></th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <p class="muted" style="margin-top:.6rem">Zona horaria: UTC-6 · Idioma: Español</p>
-    </section>
+  <main class="map-container">
+    <div class="map-placeholder">
+      <div id="map" style="height: 100%; width: 100%; z-index: 0;"></div>
+    </div>
   </main>
 
-  <div id="appFooter"></div>
+  <section class="bottom-panel">
+    <h2 class="panel-title">Nearby Routes</h2>
+    <ul class="route-list">
+      <li>Route 29 - Downtown to University</li>
+      <li>Route 15 - Central Station</li>
+      <li>Route 42 - North Loop</li>
+    </ul>
+  </section>
 
-  <!-- Modal Nueva Ruta -->
-  <div class="modal" id="modalRuta">
-    <div class="panel card pad">
-      <div class="row space">
-        <div class="h">Registrar nueva ruta</div>
-        <button class="btn ghost" onclick="document.getElementById('modalRuta').classList.remove('open')">Cerrar</button>
-      </div>
-      <form id="formRuta" class="stack">
-        <div>
-          <label class="label">Nombre</label>
-          <input class="input" id="rName" required placeholder="p.ej. Ruta 10A">
-        </div>
-        <div>
-          <label class="label">Código</label>
-          <input class="input" id="rCode" placeholder="10A">
-        </div>
-        <div>
-          <label class="label">Descripción</label>
-          <textarea class="input" id="rDesc" rows="3" placeholder="Descripción breve"></textarea>
-        </div>
-        <div class="row">
-          <button class="btn ok" type="submit">Guardar</button>
-          <button class="btn muted" type="button" onclick="document.getElementById('modalRuta').classList.remove('open')">Cancelar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Confirm genérico -->
-  <div class="modal" id="modalConfirm">
-    <div class="panel card pad">
-      <div class="h" id="confirmText">¿Seguro?</div>
-      <div class="row" style="margin-top:.8rem">
-        <button class="btn danger" id="confirmYes">Eliminar</button>
-        <button class="btn muted" id="confirmNo">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast-wrap"></div>
-
+  <nav class="side-menu" id="sideMenu">
+    <ul>
+      <li><a href="#">Saved Routes</a></li>
+      <li><a href="#">Log Out</a></li>
+    </ul>
+  </nav>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script type="module">
-    import { renderHeader, renderFooter } from "../assets/js/components.js";
-    import { openModal, toast } from "../assets/js/ui.js";
-    import { api } from "../assets/js/api.js";
-    import { storage } from "../assets/js/storage.js";
+      import { setThemeToggle, toast, $ } from "./assets/js/ui.js";
+      import { api } from "./assets/js/api.js";
+      import { storage } from "./assets/js/storage.js";
 
-    if(!storage.token) location.href='./login.html';
-    renderHeader({logout:true}); renderFooter();
+      //if (!storage.token) location.href = "./login.html"; despues agregar pues aun no pasa token el backend
 
-    let deleteMode = false;
-    let pendingRouteId = null;
+      //setThemeToggle(document.getElementById("themeBtn")); agregar despues pues aun no hay tema oscuro 
 
-    const btnNew = document.getElementById('btnNuevaRuta');
-    const btnDel = document.getElementById('btnToggleDelete');
+      const map = L.map("map").setView([13.69294, -89.21819], 12);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:15, attribution:"© OpenStreetMap", minZoom: 10, zoom: 10}).addTo(map);
 
-    function setToolbarState(){
-      if(deleteMode){
-        btnNew.classList.add('hidden');           // ocultar “Registrar nueva ruta”
-        btnDel.textContent = 'Cancelar';           // botón rojo pasa a “Cancelar”
-      }else{
-        btnNew.classList.remove('hidden');         // volver a mostrar
-        btnDel.textContent = 'Eliminar rutas';     // texto original
+      const params = new URLSearchParams(location.search);
+      const routeId = params.get("id") || 1;
+
+      async function loadRoute(){
+        const data = await api.getRouteDetail(routeId);
+        $("#routeTitle").textContent = data.name;
+        const tbody = document.querySelector("#teamsTable tbody");
+        tbody.innerHTML = data.teams.map(t=>`<tr><td>${t.name}</td><td>—</td><td>—</td></tr>`).join("");
+        data.markers.forEach(p=> L.marker([p.lat,p.lng]).addTo(map));
+        document.getElementById("countActive").textContent = Math.max(1, data.markers.length - 1);
+        document.getElementById("countInactive").textContent = 1;
       }
-    }
 
-    function renderRows(routes){
-      const tbody = document.querySelector('#routesTable tbody');
-      if(!routes.length){ tbody.innerHTML = '<tr><td colspan="5" class="muted">Aún no hay rutas</td></tr>'; return; }
-
-      tbody.innerHTML = routes.map(r=>{
-        const total = (r.active||0)+(r.inactive||0);
-        // En modo eliminación: mostrar SOLO “Eliminar”.
-        // Modo normal: mostrar SOLO “Abrir”.
-        const actionCell = deleteMode
-          ? `<button class="btn danger" data-act="del">Eliminar</button>`
-          : `<a class="btn ghost" href="./rutas.html?id=${encodeURIComponent(r.id)}">Abrir</a>`;
-
-        return `<tr data-id="${r.id}">
-          <td><strong>${r.name}</strong></td>
-          <td><span class="pill ok">${r.active||0}</span></td>
-          <td><span class="pill bad">${r.inactive||0}</span></td>
-          <td>${total}</td>
-          <td class="row" style="gap:.5rem">${actionCell}</td>
-        </tr>`;
-      }).join('');
-
-      // Bind de eliminar (solo si está en modo borrar)
-      if(deleteMode){
-        document.querySelectorAll('[data-act="del"]').forEach(b=>{
-          b.addEventListener('click', (e)=>{
-            const tr = e.currentTarget.closest('tr');
-            pendingRouteId = Number(tr.dataset.id);
-            document.getElementById('confirmText').textContent = '¿Eliminar esta ruta? Esta acción no se puede deshacer.';
-            openModal('modalConfirm');
+      /*
+      Cambiar despues a otra View?
+      document.getElementById("btnAddTeam").addEventListener("click", ()=> {
+        document.getElementById("modalTeam").classList.add("open");
+      });
+      document.getElementById("formTeam").addEventListener("submit", async (e)=>{
+        e.preventDefault();
+        try{
+          await api.addTeam(routeId, {
+            colors: document.getElementById("tColors").value.trim(),
+            driver: document.getElementById("tDriver").value.trim(),
+            phone:  document.getElementById("tPhone").value.trim()
           });
-        });
-      }
-    }
+          toast("Equipo agregado correctamente","ok");
+          document.getElementById("modalTeam").classList.remove("open");
+        }catch{ toast("Error al agregar equipo","bad"); }
+      });*/
 
-    async function loadRoutes(){
-      const tbody = document.querySelector('#routesTable tbody');
-      tbody.innerHTML = '<tr><td colspan="5" class="muted">Cargando...</td></tr>';
-      const routes = await api.getRoutes().catch(_=>[]);
-      renderRows(routes);
-    }
+      loadRoute();
 
-    // Nueva ruta
-    btnNew.addEventListener('click', ()=> openModal('modalRuta'));
-    document.getElementById('formRuta').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const payload = {
-        name: document.getElementById('rName').value.trim(),
-        code: document.getElementById('rCode').value.trim(),
-        description: document.getElementById('rDesc').value.trim()
-      };
-      try{
-        await api.createRoute(payload);
-        toast('Ruta registrada correctamente','ok');
-        document.getElementById('modalRuta').classList.remove('open');
-        loadRoutes();
-      }catch{ toast('Error al agregar la ruta','bad'); }
-    });
-
-    // Toggle “Eliminar rutas” <-> “Cancelar”
-    btnDel.addEventListener('click', ()=>{
-      deleteMode = !deleteMode;
-      setToolbarState();
-      loadRoutes();
-    });
-
-    // Confirm modal
-    document.getElementById('confirmNo').addEventListener('click', ()=> document.getElementById('modalConfirm').classList.remove('open'));
-    document.getElementById('confirmYes').addEventListener('click', async ()=>{
-      if(pendingRouteId){
-        await api.deleteRoute(pendingRouteId).catch(()=>toast('No se pudo eliminar','bad'));
-        pendingRouteId = null;
-        document.getElementById('modalConfirm').classList.remove('open');
-        toast('Ruta eliminada','ok'); loadRoutes();
-      }
-    });
-
-    setToolbarState();
-    loadRoutes();
   </script>
 </body>
 </html>

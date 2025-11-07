@@ -1,78 +1,81 @@
-<!doctype html>
-<html lang="es" data-theme="light">
+<!DOCTYPE html>
+<html lang="es">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BusTrackSV — Registro</title>
-  <link rel="icon" href="/assets/img/logo-bus.png">
-  <link rel="stylesheet" href="/assets/css/main.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BustrackSV - Registro</title>
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  <div id="appHeader"></div>
+  <header class="header">
+    <h1 class="app-title">BustrackSV</h1>
+  </header>
 
-  <main class="auth-shell">
-    <aside class="auth-left">
-      <div class="brand">
-        <h1>Buses S.A.</h1>
-        <img class="logo-bus" src="/assets/img/logo-bus.png" alt="Bus">
-        <p>Crea tu cuenta para gestionar rutas y equipos.</p>
-      </div>
-    </aside>
+  <main class="login-container">
+    <section class="login-box">
+      <h2 class="login-title">Registro</h2>
 
-    <section class="auth-right">
-      <div class="card pad form-card">
-        <h2 class="h">Registra tus datos</h2>
-        <form id="registerForm" class="stack" style="gap:1rem">
-          <div class="row" style="gap:1rem;flex-wrap:wrap">
-            <div style="flex:1 1 240px"><label class="label">Nombre completo</label><input class="input" id="rName" required></div>
-            <div style="flex:1 1 240px"><label class="label">Correo electrónico</label><input class="input" id="rEmail" type="email" required></div>
-          </div>
-          <div class="row" style="gap:1rem;flex-wrap:wrap">
-            <div style="flex:1 1 240px"><label class="label">Sexo</label>
-              <select class="input" id="rGender" required>
-                <option value="" selected disabled>Selecciona</option>
-                <option>Femenino</option><option>Masculino</option>
-              </select>
+        <form class="login-form" id="registerForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Nombre completo</label>
+              <input type="text" id="name" name="name" required>
             </div>
-            <div style="flex:1 1 240px"><label class="label">Usuario</label><input class="input" id="rUser" required></div>
+            <div class="form-group">
+              <label for="username">Usuario</label>
+              <input type="text" id="username" name="username" required>
+            </div>
           </div>
-          <div class="row" style="gap:1rem;flex-wrap:wrap">
-            <div style="flex:1 1 240px"><label class="label">Contraseña</label><input class="input" id="rPass" type="password" minlength="6" required></div>
-            <div style="flex:1 1 240px"><label class="label">Confirma tu contraseña</label><input class="input" id="rPass2" type="password" minlength="6" required></div>
-          </div>
-          <button class="btn" type="submit">Registrar datos</button>
-          <div class="row space"><span class="muted">¿Ya tienes cuenta?</span><a href="./login.html" id="gotoLogin">Iniciar sesión</a></div>
-        </form>
-      </div>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" minlength="6" required>
+
+        <label for="password2">Confirmar contraseña</label>
+        <input type="password" id="password2" name="password2" minlength="6" required>
+
+        <div class="button-group">
+          <button type="submit" class="btn">Registrar</button>
+          <button type="button" class="btn secondary" onclick="window.location.href='login.html'">Volver al login</button>
+        </div>
+      </form>
     </section>
   </main>
-
-  <div id="appFooter"></div>
-  <div class="toast-wrap"></div>
+  <div id="toast-wrap"></div>
+  <footer class="footer">
+    <p>&copy; 2025 BustrackSV</p>
+  </footer>
 
   <script type="module">
-    import { renderHeader, renderFooter } from "../assets/js/components.js";
-    import { toast } from "../assets/js/ui.js";
-    import { api } from "../assets/js/api.js";
-    renderHeader({}); renderFooter();
+    import { toast } from "./assets/js/ui.js";
+    import { api } from "./assets/js/api.js";
 
-    document.getElementById('gotoLogin').addEventListener('click', (e)=>{ /* solo navega, no login automático */ });
-
-    document.getElementById('registerForm').addEventListener('submit', async (e)=>{
+    const form = document.getElementById('registerForm');
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const payload = {
-        name: document.getElementById('rName').value.trim(),
-        email: document.getElementById('rEmail').value.trim(),
-        username: document.getElementById('rUser').value.trim(),
-        password: document.getElementById('rPass').value,
-        profile: { gender: document.getElementById('rGender').value }
+        name: document.getElementById('name').value.trim(),
+        apellido: "placeholder",
+        dui: "12345678-9",
+        email: document.getElementById('email').value.trim(),
+        fecha: Date.now(),
+        username: document.getElementById('username').value.trim(),
+        password: document.getElementById('password').value
       };
-      const pass2 = document.getElementById('rPass2').value;
-      if(payload.password !== pass2) return toast('Las contraseñas no coinciden','bad');
-      if(payload.password.length < 6) return toast('La contraseña debe tener 6+ caracteres','bad');
-      try{
+      const pass2 = document.getElementById('password2').value;
+
+      if (payload.password !== pass2) return toast('Las contraseñas no coinciden', 'bad');
+      if (payload.password.length < 6) return toast('La contraseña debe tener al menos 6 caracteres', 'bad');
+
+      try {
         await api.register(payload);
-        location.href = './login.html?msg=registered';
-      }catch(err){ toast(err.message || 'No se pudo registrar','bad'); }
+        toast('Registro exitoso', 'ok');
+        setTimeout(() => location.href = './login.html', 500);
+      } catch (err) {
+        toast(err.message || 'No se pudo registrar', 'bad');
+      }
     });
   </script>
 </body>
