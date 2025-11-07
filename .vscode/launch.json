@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "http://localhost:8080/nose.html",
+            "url": "http://localhost:8080/register.html",
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "iniciar servidor"
         }
