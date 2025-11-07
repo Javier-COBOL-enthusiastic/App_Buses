@@ -1,7 +1,8 @@
 using System.Data;
 using System.Data.SqlClient;
 using ConexionBD;
-using BusTrackSV.Models; // Ajusta este namespace si es necesario
+using BusTrackSV.Models;
+using System.Collections.Generic;
 
 namespace Data.Repositories
 {
@@ -19,7 +20,6 @@ namespace Data.Repositories
         {
             Usuario usuario = null;
             
-            // Este SP no existe, lo vamos a crear al final para validar la contraseña
             string spName = "sp_validar_usuario_login"; 
 
             using (SqlConnection cnx = _connector.CreateConnection())
@@ -51,7 +51,6 @@ namespace Data.Repositories
         // 2. Método para Registrar un nuevo Usuario
         public void RegistrarUsuario(UsuarioRegistroDTO nuevoUsuario)
         {
-            // El SP 'sp_registrar_usuario' existe en tu script SQL
             string spName = "sp_registrar_usuario";
 
             using (SqlConnection cnx = _connector.CreateConnection())
@@ -69,13 +68,7 @@ namespace Data.Repositories
                     cmd.Parameters.AddWithValue("@usuario", nuevoUsuario.nombreUsuario);
                     cmd.Parameters.AddWithValue("@password", nuevoUsuario.password);
                     
-                    cmd.ExecuteNonQuery(); // Ejecuta el SP de inserción
-                    
-                    // NOTA: Para registrar el teléfono, primero necesitas el ID del usuario.
-                    // Tu SP 'sp_registrar_usuario' NO devuelve el ID.
-                    // Para hacer el registro del teléfono, necesitarías modificar el SP 
-                    // para devolver el ID_USUARIO recién insertado (usando OUTPUT o SELECT SCOPE_IDENTITY()).
-                    // Aquí asumimos que lo harás por separado o lo modificarás.
+                    cmd.ExecuteNonQuery();
                 }
             }
         }

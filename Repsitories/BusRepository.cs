@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using ConexionBD;
+using BusTrackSV.Models;
 
 namespace Data.Repositories
 {
@@ -18,7 +19,7 @@ namespace Data.Repositories
         public List<Bus> GetBusesByUsuarioId(int idUsuario)
         {
             var buses = new List<Bus>();
-            // Usaremos una consulta directa ya que no hay SP de selección en tu script
+            
             string sql = "SELECT id_bus, numero_placa, capacidad, id_ruta, id_usuario FROM buses WHERE id_usuario = @id_usuario";
 
             using (SqlConnection cnx = _connector.CreateConnection())
@@ -35,7 +36,7 @@ namespace Data.Repositories
                             {
                                 id_bus = reader.GetInt32(0),
                                 numero_placa = reader.GetString(1),
-                                capacidad = reader.GetInt32(2), // Ajuste a GetInt32 si capacidad es INT
+                                capacidad = reader.GetInt32(2),
                                 id_ruta = reader.GetInt32(3),
                                 id_usuario = reader.GetInt32(4)
                             });
@@ -49,7 +50,6 @@ namespace Data.Repositories
         // 2. Método para Registrar un nuevo Bus
         public void RegistrarBus(Bus nuevoBus)
         {
-            // El SP 'sp_registrar_buses' existe en tu script SQL
             string spName = "sp_registrar_buses";
 
             using (SqlConnection cnx = _connector.CreateConnection())
@@ -71,7 +71,6 @@ namespace Data.Repositories
         // 3. Método para Eliminar un Bus
         public void EliminarBus(int idBus)
         {
-            // Creamos un SP de eliminación para consistencia (no estaba en tu script)
             string sql = "DELETE FROM buses WHERE id_bus = @id_bus"; 
 
             using (SqlConnection cnx = _connector.CreateConnection())

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using ConexionBD;
+using BusTrackSV.Models;
 
 namespace Data.Repositories
 {
@@ -17,7 +18,6 @@ namespace Data.Repositories
         // 1. Método para Registrar una nueva Ruta
         public void RegistrarRuta(Ruta nuevaRuta)
         {
-            // El SP 'sp_registrar_rutas' existe en tu script SQL
             string spName = "sp_registrar_rutas";
 
             using (SqlConnection cnx = _connector.CreateConnection())

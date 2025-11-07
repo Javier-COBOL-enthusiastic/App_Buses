@@ -18,5 +18,4 @@ public class UsuarioRegistroDTO
     public DateTime fecha { get; set; }
     public string nombreUsuario { get; set; }
     public string password { get; set; }
-    public string telefono { get; set; } // Asumo que el teléfono se registra aquí
 }
