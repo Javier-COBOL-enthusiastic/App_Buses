@@ -18,7 +18,7 @@ namespace BusTrackSV.API
             group.MapPost("/register", (Modelos.UsuarioRegistroDTO u, DB.UsuarioRepository db) =>
             {
                 try
-                {
+                {                    
                     u.fecha = DateTime.Now;
                     AuthService.Registrar(u, db); //parece que nunca dara error pq le dio ganas a enrique que no duelva nada
                     return Results.Json(new { mensaje = u });
