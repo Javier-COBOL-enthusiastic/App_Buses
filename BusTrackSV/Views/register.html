@@ -54,14 +54,14 @@
 
     const form = document.getElementById('registerForm');
     form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+      e.preventDefault();      
       const payload = {
-        name: document.getElementById('name').value.trim(),
+        nombre: document.getElementById('name').value.trim(),
         apellido: "placeholder",
         dui: "12345678-9",
-        email: document.getElementById('email').value.trim(),
-        fecha: Date.now(),
-        username: document.getElementById('username').value.trim(),
+        correo: document.getElementById('email').value.trim(),
+        fecha: new Date().toISOString(),
+        nombreUsuario: document.getElementById('username').value.trim(),
         password: document.getElementById('password').value
       };
       const pass2 = document.getElementById('password2').value;

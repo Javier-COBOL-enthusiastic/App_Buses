@@ -20,7 +20,7 @@ namespace Data.Repositories
         {
             Usuario? usuario = null;
             
-            string spName = "sp_validar_usuario_login"; 
+            string spName = "sp_validar_usuario_login"; // no existe <-
 
             using (SqlConnection cnx = _connector.CreateConnection())
             {
@@ -51,7 +51,8 @@ namespace Data.Repositories
         // 2. Método para Registrar un nuevo Usuario
         public void RegistrarUsuario(UsuarioRegistroDTO nuevoUsuario)
         {
-            string spName = "sp_registrar_usuario";
+            string spName = "sp_registrar_usuario";            
+
 
             using (SqlConnection cnx = _connector.CreateConnection())
             {

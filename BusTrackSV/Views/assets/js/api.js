@@ -29,7 +29,7 @@ function saveRoutes(uid,arr){ localStorage.setItem(keyRoutes(uid), JSON.stringif
 
 export const api = {
   /* ---------- AUTH ---------- */
-  async register({name,email,username,password,profile}){
+  async register(payload){
     if(USE_MOCK){
       const users = loadUsers();
       const exists = users.some(u => u.email.toLowerCase()===email.toLowerCase() || (username && u.username?.toLowerCase()===username.toLowerCase()));
@@ -39,7 +39,8 @@ export const api = {
       users.push(user); saveUsers(users);
       return { ok:true, user };
     }
-    return req("/auth/register","POST",{name,email,username,password,profile});
+    console.log(payload)
+    return req("/auth/register","POST", payload);
   },
   async login(email,password){
     if(USE_MOCK){
