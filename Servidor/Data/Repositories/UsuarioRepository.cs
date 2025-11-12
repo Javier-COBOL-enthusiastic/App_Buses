@@ -1,1 +1,0 @@
-//Aca irian las query's para la información de usuarios
