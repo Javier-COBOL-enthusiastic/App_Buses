@@ -34,63 +34,44 @@ ON DELETE CASCADE ON UPDATE CASCADE
 
 create table usuarios(
 id_usuario int not null primary key identity(1,1),
-nombre_usuario varchar(100) not null,
-apellido_usuario varchar(100) not null,
-DUI_usuario char(10) not null,
-correo_electronico_usuario varchar(100) not null,
-fecha_nacimiento_usuario date not null,
-usuario varchar(100) not null, -- usuario con el que se inicia sesiòn, el nombre_usuario es su nombre de persona
+nombre_completo_usuario varchar(150) not null,
+correo_electronico_usuario varchar(100) not null UNIQUE,
+usuario varchar(100) not null UNIQUE, -- usuario con el que se inicia sesiòn, el nombre_usuario es su nombre de persona
 contraseña_usuario varchar(100) not null, -- aquì se va a guardar el hash de la contraseña
+CONSTRAINT U_correo UNIQUE(correo_electronico_usuario),
+CONSTRAINT U_usuario UNIQUE(usuario)
 );
 
-create table telefonos_usuarios(
-id_telefono_usuario int not null primary key identity(1,1),
-telefono_usuario varchar(20) not null, -- ya que se van a guardar varios telefonos, pueden ser telefonos internacional
-id_usuario int not null,
-CONSTRAINT fk_telefonos_usuarios FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
-ON DELETE CASCADE ON UPDATE CASCADE
-);
 
 CREATE TABLE buses(
 id_bus INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-numero_placa VARCHAR(10) NOT NULL,
-capacidad INT NOT NULL,
+numero_placa VARCHAR(10) NOT NULL UNIQUE,
+estado_bus BIT NOT NULL, -- Solo acepta 0 o 1
 id_ruta INT NOT NULL,
 id_usuario INT NOT NULL,
 CONSTRAINT fk_buses_rutas FOREIGN KEY (id_ruta) REFERENCES rutas(id_ruta)
 ON DELETE CASCADE ON UPDATE CASCADE,
 CONSTRAINT fk_buses_usuarios FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
-ON DELETE CASCADE ON UPDATE CASCADE
+ON DELETE CASCADE ON UPDATE CASCADE,
+CONSTRAINT U_placa UNIQUE(numero_placa)
 );
 
 CREATE TABLE choferes(
 id_chofer INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-nombre_chofer VARCHAR(100) NOT NULL,
-apellido_chofer VARCHAR(100) NOT NULL,
-DUI_chofer CHAR(10) NOT NULL,
-fecha_nacimiento DATE NOT NULL,
+nombre_completo_chofer VARCHAR(100) NOT NULL,
+telefono_chofer char(9) NOT NULL UNIQUE,
 id_bus INT NOT NULL,
 CONSTRAINT fk_choferes_bus FOREIGN KEY (id_bus) REFERENCES buses(id_bus)
-ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE TABLE telefonos_choferes(
-id_telefono_choferes INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-telefono_choferes VARCHAR(20) NOT NULL,
-id_chofer INT NOT NULL,
-CONSTRAINT fk_telefonos_choferes FOREIGN KEY (id_chofer) REFERENCES choferes(id_chofer)
-ON DELETE CASCADE ON UPDATE CASCADE
+ON DELETE CASCADE ON UPDATE CASCADE,
+CONSTRAINT U_telefono_chofer UNIQUE(telefono_chofer)
 );
 
 -- es mejor usar procedimientos almacenado, es más seguro y es más dificil de vulnerar que dejar el muy puro "insert-deleté-update"
 
 -- procedimiento almacenado para guardar usuarios
 CREATE PROCEDURE sp_registrar_usuario
-    @nombre NVARCHAR(100),
-    @apellido NVARCHAR(100),
-    @dui CHAR(10),
+    @nombre_completo NVARCHAR(150),
     @correo NVARCHAR(100),
-    @fecha DATE,
     @usuario NVARCHAR(100),
     @password NVARCHAR(200)
 AS
@@ -106,20 +87,14 @@ BEGIN
             HASHBYTES('SHA2_256', @salt + @password);
 
         INSERT INTO usuarios (
-            nombre_usuario,
-            apellido_usuario,
-            DUI_usuario,
+            nombre_completo_usuario,
             correo_electronico_usuario,
-            fecha_nacimiento_usuario,
             usuario,
             contraseña_usuario
         )
         VALUES (
-            @nombre,
-            @apellido,
-            @dui,
+            @nombre_completo,
             @correo,
-            @fecha,
             @usuario,
             CONVERT(VARCHAR(100), @hash, 2)
         );
@@ -130,30 +105,6 @@ BEGIN
 END;
 GO
 
--- procedimiento almacenado para guardar telefonos de usuarios
-
-CREATE PROCEDURE sp_registrar_telefonos_usuarios
-    @telefonousuario VARCHAR(10),
-    @idusuarioo VARCHAR(200)
-    
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-
-        INSERT INTO telefonos_usuarios(
-            telefono_usuario, id_usuario
-        )
-        VALUES (
-            @telefonousuario, @idusuarioo 
-        );
-    END TRY
-    BEGIN CATCH
-        THROW;
-    END CATCH
-END;
-GO
 
 -- procedimiento almacenado para la tabla coordenadas
 CREATE PROCEDURE sp_registrar_coordenadas
@@ -213,7 +164,7 @@ GO
 -- procedimiento almacenado para la tabla buses
 CREATE PROCEDURE sp_registrar_buses
     @numero_placa VARCHAR(10),
-    @capacidad INT,
+    @estado_bus INT,
     @id_ruta INT,
     @id_usuario INT
 AS
@@ -221,8 +172,8 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        INSERT INTO buses(numero_placa, capacidad, id_ruta, id_usuario)
-        VALUES (@numero_placa, @capacidad, @id_ruta, @id_usuario);
+        INSERT INTO buses(numero_placa, estado_bus, id_ruta, id_usuario)
+        VALUES (@numero_placa, @estado_bus, @id_ruta, @id_usuario);
     END TRY
     BEGIN CATCH
         THROW;
@@ -232,45 +183,22 @@ GO
 
 -- procedimiento almacenado para la tabla choferes
 CREATE PROCEDURE sp_registrar_choferes
-    @nombre VARCHAR(100),
-    @apellido VARCHAR(100),
-    @dui CHAR(10),
-    @fecha_nacimiento DATE,
+    @nombre_completo VARCHAR(150),
+    @telefono_chofer char(9),
     @id_bus INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        INSERT INTO choferes(nombre_chofer, apellido_chofer, DUI_chofer, fecha_nacimiento, id_bus)
-        VALUES (@nombre, @apellido, @dui, @fecha_nacimiento, @id_bus);
+        INSERT INTO choferes(nombre_completo_chofer, telefono_chofer, id_bus)
+        VALUES (@nombre_completo, @telefono_chofer, @id_bus);
     END TRY
     BEGIN CATCH
         THROW;
     END CATCH
 END;
 GO
-
--- procedimiento almacenado para la tabla telefonos_choferes
-CREATE PROCEDURE sp_registrar_telefonos_choferes
-    @telefono VARCHAR(20),
-    @id_chofer INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        INSERT INTO telefonos_choferes(telefono_choferes, id_chofer)
-        VALUES (@telefono, @id_chofer);
-    END TRY
-    BEGIN CATCH
-        THROW;
-    END CATCH
-END;
-GO
-
-
-
 
 
 
@@ -278,19 +206,12 @@ GO
 
 --usuarios
 EXEC sp_registrar_usuario
-    @nombre = 'Daniel',
-    @apellido = 'Salguero',
-    @dui = '12345678-9',
+    @nombre_completo = 'Daniel Salguero',
     @correo = 'daniel@example.com',
-    @fecha = '2000-01-01',
     @usuario = 'dsalguero',
     @password = 'Academia2025'
 
--- telefonos de usuario
-EXEC sp_registrar_telefonos_usuarios
-    @telefonousuario = '7123-4567',
-    @idusuarioo = 1; -- aquí va el id del usuario, yo como ya había hecho pruebas ya no es el id 1, solo vean cual es el id que corresponde al usuario que quieran asignarle el telefono
-   
+ 
 -- rutas
 EXEC sp_registrar_rutas 
     @nombre_ruta = 'Ruta 101',
@@ -346,8 +267,8 @@ INNER JOIN coordenadas c on pr.id_coordenada = c.id_coordenada
 ORDER BY pr.orden ASC
 
 -- buses
-EXEC sp_registrar_buses @numero_placa='P000 101', @capacidad=40, @id_ruta=1, @id_usuario=1;
-EXEC sp_registrar_buses @numero_placa='P 9 1A2', @capacidad=30, @id_ruta=2, @id_usuario=1;
+EXEC sp_registrar_buses @numero_placa='P000 101', @estado_bus = 1, @id_ruta=1, @id_usuario=1;
+EXEC sp_registrar_buses @numero_placa='P 9 1A2', @estado_bus = 1, @id_ruta=2, @id_usuario=1;
 
 
 -- consulta para que aparezca una sola vez la placa si aparece en varios registros
@@ -364,12 +285,37 @@ INNER JOIN coordenadas c ON pr.id_coordenada = c.id_coordenada
 ORDER BY b.numero_placa, pr.orden;
 
 -- choferes
-EXEC sp_registrar_choferes @nombre='Juan', @apellido='Pérez', @dui='12345678-9', @fecha_nacimiento='1985-05-12', @id_bus=1;
-EXEC sp_registrar_choferes @nombre='María', @apellido='Gómez', @dui='98765432-1', @fecha_nacimiento='1990-08-22', @id_bus=2;
+EXEC sp_registrar_choferes @nombre_completo = 'Enrique Rafael deL Ano', @telefono_chofer = '9999-0000', @id_bus=1;
+EXEC sp_registrar_choferes @nombre_completo = 'Javier Boliviano', @telefono_chofer = '9909-0000', @id_bus=1;
 
--- telefonos_choferes
-EXEC sp_registrar_telefonos_choferes @telefono='7777-1111', @id_chofer=1;
-EXEC sp_registrar_telefonos_choferes @telefono='7777-2222', @id_chofer=1;
-EXEC sp_registrar_telefonos_choferes @telefono='8888-3333', @id_chofer=2;
-EXEC sp_registrar_telefonos_choferes @telefono='8888-4444', @id_chofer=2;
+-- Procedimiento almacenado para validar el usuario y su contraseña
+CREATE PROCEDURE sp_validar_usuario_login
+    @usuario NVARCHAR(100),
+    @password NVARCHAR(200)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- SAL usada en sp_registrar_usuario: equipovicturbo
+    DECLARE @salt NVARCHAR(15) = 'equipovicturbo';
+    
+    -- Hash SHA2_256(SAL + contraseña)
+    DECLARE @hash_entrada VARBINARY(32) = 
+        HASHBYTES('SHA2_256', @salt + @password);
+        
+    -- Convertir el hash de entrada a VARCHAR para compararlo con el de la DB
+    DECLARE @hash_comparar VARCHAR(100) = CONVERT(VARCHAR(100), @hash_entrada, 2);
+
+    -- Seleccionar el usuario si el nombre de usuario y el hash coinciden
+    SELECT 
+        id_usuario, 
+        usuario, 
+        correo_electronico_usuario, 
+        usuario 
+    FROM usuarios
+    WHERE 
+        usuario = @usuario 
+        AND contraseña_usuario = @hash_comparar;
+END;
+GO
 
