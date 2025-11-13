@@ -8,111 +8,72 @@ create database bustrack;
 
 use bustrack;
 
-create table roles_usuarios(
-id_rol int not null primary key identity(1,1),
-nombre_rol varchar(30) not null
+CREATE TABLE coordenadas (
+id_coordenada INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+latitud DECIMAL(10, 7) NOT NULL,
+longitud DECIMAL(10, 7) NOT NULL
 );
 
-create table coordenadas(
-id_coordenada int not null primary key identity(1,1),
-direccion_1 varchar(200) not null,
-direccion_2 varchar(200) not null,
-punto_1 varchar(200) not null,
-punto_2 varchar(200) not null
+CREATE TABLE rutas(
+id_ruta INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+nombre_ruta VARCHAR(10) NOT NULL,
+descripcion_ruta VARCHAR(1000) NOT NULL
 );
 
-create table rutas(
-id_ruta int not null primary key identity(1,1),
-nombre_ruta varchar(10) not null,
-descripcion_ruta varchar(1000) not null,
-id_coordenada int not null,
-CONSTRAINT fk_rutas_coordenadas FOREIGN KEY (id_coordenada) REFERENCES coordenadas(id_coordenada)
+CREATE TABLE puntos_ruta (
+id_punto_ruta INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+id_ruta INT NOT NULL,
+id_coordenada INT NOT NULL,
+orden INT NOT NULL, -- secuencia del recorrido
+CONSTRAINT fk_pr_ruta FOREIGN KEY (id_ruta) REFERENCES rutas(id_ruta) 
+ON DELETE CASCADE ON UPDATE CASCADE,
+CONSTRAINT fk_pr_coordenada FOREIGN KEY (id_coordenada) REFERENCES coordenadas(id_coordenada)
 ON DELETE CASCADE ON UPDATE CASCADE
 );
+
 
 create table usuarios(
 id_usuario int not null primary key identity(1,1),
-nombre_usuario varchar(100) not null,
-apellido_usuario varchar(100) not null,
-DUI_usuario char(10) not null,
-correo_electronico_usuario varchar(100) not null,
-fecha_nacimiento_usuario date not null,
-usuario varchar(100) not null, -- usuario con el que se inicia sesiòn, el nombre_usuario es su nombre de persona
+nombre_completo_usuario varchar(150) not null,
+correo_electronico_usuario varchar(100) not null UNIQUE,
+usuario varchar(100) not null UNIQUE, -- usuario con el que se inicia sesiòn, el nombre_usuario es su nombre de persona
 contraseña_usuario varchar(100) not null, -- aquì se va a guardar el hash de la contraseña
-id_rol int not null,
-CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES roles_usuarios(id_rol)
-ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-create table telefonos_usuarios(
-id_telefono_usuario int not null primary key identity(1,1),
-telefono_usuario varchar(20) not null, -- ya que se van a guardar varios telefonos, pueden ser telefonos internacional
-id_usuario int not null,
-CONSTRAINT fk_telefonos_usuarios FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
-ON DELETE CASCADE ON UPDATE CASCADE
+CONSTRAINT U_correo UNIQUE(correo_electronico_usuario),
+CONSTRAINT U_usuario UNIQUE(usuario)
 );
 
 
-create table buses(
-id_bus int not null primary key identity(1,1),
-numero_placa varchar(10) not null,
-capacidad int not null,
-id_ruta int not null,
+CREATE TABLE buses(
+id_bus INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+numero_placa VARCHAR(10) NOT NULL UNIQUE,
+estado_bus BIT NOT NULL, -- Solo acepta 0 o 1
+id_ruta INT NOT NULL,
+id_usuario INT NOT NULL,
 CONSTRAINT fk_buses_rutas FOREIGN KEY (id_ruta) REFERENCES rutas(id_ruta)
 ON DELETE CASCADE ON UPDATE CASCADE,
-id_usuario int not null,
 CONSTRAINT fk_buses_usuarios FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
-ON DELETE CASCADE ON UPDATE CASCADE
+ON DELETE CASCADE ON UPDATE CASCADE,
+CONSTRAINT U_placa UNIQUE(numero_placa)
 );
 
-
-create table choferes(
-id_chofer int not null primary key identity(1,1),
-nombre_chofer varchar(100) not null,
-apellido_chofer varchar(100) not null,
-DUI_chofer char(10) not null,
-fecha_nacimiento date not null,
-id_bus int not null,
+CREATE TABLE choferes(
+id_chofer INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+nombre_completo_chofer VARCHAR(100) NOT NULL,
+telefono_chofer char(9) NOT NULL UNIQUE,
+id_bus INT NOT NULL,
 CONSTRAINT fk_choferes_bus FOREIGN KEY (id_bus) REFERENCES buses(id_bus)
-ON DELETE CASCADE ON UPDATE CASCADE
+ON DELETE CASCADE ON UPDATE CASCADE,
+CONSTRAINT U_telefono_chofer UNIQUE(telefono_chofer)
 );
-
-create table telefonos_choferes(
-id_telefono_choferes int not null primary key identity(1,1),
-telefono_choferes varchar(20) not null, -- ya que se van a guardar varios telefonos, pueden ser telefonos internacional
-id_chofer int not null,
-CONSTRAINT fk_telefonos_choferes FOREIGN KEY (id_chofer) REFERENCES choferes(id_chofer)
-ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-EXEC sp_registrar_roles
-    @nombre_rol = 'Administrador';
-
--- Ejecutador de procedimientos almacenados
---usuarios
-EXEC sp_registrar_usuario
-    @nombre = 'Daniel',
-    @apellido = 'Salguero',
-    @dui = '12345678-9',
-    @correo = 'daniel@example.com',
-    @fecha = '2000-01-01',
-    @usuario = 'dsalguero',
-    @password = 'Academia2025',
-    @idrol = 1;
-
 
 -- es mejor usar procedimientos almacenado, es más seguro y es más dificil de vulnerar que dejar el muy puro "insert-deleté-update"
 
 -- procedimiento almacenado para guardar usuarios
 CREATE PROCEDURE sp_registrar_usuario
-    @nombre NVARCHAR(100),
-    @apellido NVARCHAR(100),
-    @dui CHAR(10),
+    @nombre_completo NVARCHAR(150),
     @correo NVARCHAR(100),
-    @fecha DATE,
     @usuario NVARCHAR(100),
-    @password NVARCHAR(200),
-    @idrol int
+    @password NVARCHAR(200)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -126,24 +87,16 @@ BEGIN
             HASHBYTES('SHA2_256', @salt + @password);
 
         INSERT INTO usuarios (
-            nombre_usuario,
-            apellido_usuario,
-            DUI_usuario,
+            nombre_completo_usuario,
             correo_electronico_usuario,
-            fecha_nacimiento_usuario,
             usuario,
-            contraseña_usuario,
-            id_rol
+            contraseña_usuario
         )
         VALUES (
-            @nombre,
-            @apellido,
-            @dui,
+            @nombre_completo,
             @correo,
-            @fecha,
             @usuario,
-            CONVERT(VARCHAR(100), @hash, 2),
-            @idrol
+            CONVERT(VARCHAR(100), @hash, 2)
         );
     END TRY
     BEGIN CATCH
@@ -152,48 +105,19 @@ BEGIN
 END;
 GO
 
--- procedimiento almacenado para guardar roles de usuario
-CREATE PROCEDURE sp_registrar_roles
-    @nombre_rol VARCHAR(30)
-    
-AS
-BEGIN
-    SET NOCOUNT ON;
+SELECT * FROM usuarios
 
-    BEGIN TRY
-
-        INSERT INTO roles_usuarios(
-            nombre_rol
-        )
-        VALUES (
-            @nombre_rol
-        );
-    END TRY
-    BEGIN CATCH
-        THROW;
-    END CATCH
-END;
-GO
-
--- procedimiento almacenado para guardar las coordenadas
+-- procedimiento almacenado para la tabla coordenadas
 CREATE PROCEDURE sp_registrar_coordenadas
-    @direccion1 VARCHAR(200),
-    @direccion2 VARCHAR(200),
-    @punto1 VARCHAR(200),
-    @punto2 VARCHAR(200)
-    
+    @latitud DECIMAL(10,7),
+    @longitud DECIMAL(10,7)
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-
-        INSERT INTO coordenadas(
-            direccion_1, direccion_2, punto_1, punto_2
-        )
-        VALUES (
-            @direccion1, @direccion2, @punto1, @punto2  
-        );
+        INSERT INTO coordenadas(latitud, longitud)
+        VALUES (@latitud, @longitud);
     END TRY
     BEGIN CATCH
         THROW;
@@ -201,24 +125,17 @@ BEGIN
 END;
 GO
 
--- procedimiento almacenado para guardar las rutas
+-- procedimiento almacenado para la tabla rutas
 CREATE PROCEDURE sp_registrar_rutas
-    @nombreruta VARCHAR(10),
-    @descripcionruta VARCHAR(200),
-    @idcoordenada int
-    
+    @nombre_ruta VARCHAR(10),
+    @descripcion_ruta VARCHAR(1000)
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-
-        INSERT INTO rutas(
-            nombre_ruta, descripcion_ruta, id_coordenada
-        )
-        VALUES (
-            @nombreruta, @descripcionruta, @idcoordenada  
-        );
+        INSERT INTO rutas(nombre_ruta, descripcion_ruta)
+        VALUES (@nombre_ruta, @descripcion_ruta);
     END TRY
     BEGIN CATCH
         THROW;
@@ -226,24 +143,18 @@ BEGIN
 END;
 GO
 
--- procedimiento almacenado para guardar telefonos de usuarios
-
-CREATE PROCEDURE sp_registrar_telefonos_usuarios
-    @telefonousuario VARCHAR(10),
-    @idusuarioo VARCHAR(200)
-    
+-- procedimiento almacenado para la tabla puntos_rutas
+CREATE PROCEDURE sp_registrar_puntos_ruta
+    @id_ruta INT,
+    @id_coordenada INT,
+    @orden INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-
-        INSERT INTO telefonos_usuarios(
-            telefono_usuario, id_usuario
-        )
-        VALUES (
-            @telefonousuario, @idusuarioo 
-        );
+        INSERT INTO puntos_ruta(id_ruta, id_coordenada, orden)
+        VALUES (@id_ruta, @id_coordenada, @orden);
     END TRY
     BEGIN CATCH
         THROW;
@@ -252,28 +163,18 @@ END;
 GO
 
 -- procedimiento almacenado para la tabla buses
-CREATE PROCEDURE sp_registrar_bus
-    @numeroplaca VARCHAR(10),
-    @capacidad INT,
-    @idruta INT,
-    @idusuario INT
+CREATE PROCEDURE sp_registrar_buses
+    @numero_placa VARCHAR(10),
+    @estado_bus INT,
+    @id_ruta INT,
+    @id_usuario INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        INSERT INTO buses (
-            numero_placa,
-            capacidad,
-            id_ruta,
-            id_usuario
-        )
-        VALUES (
-            @numeroplaca,
-            @capacidad,
-            @idruta,
-            @idusuario
-        );
+        INSERT INTO buses(numero_placa, estado_bus, id_ruta, id_usuario)
+        VALUES (@numero_placa, @estado_bus, @id_ruta, @id_usuario);
     END TRY
     BEGIN CATCH
         THROW;
@@ -282,31 +183,17 @@ END;
 GO
 
 -- procedimiento almacenado para la tabla choferes
-CREATE PROCEDURE sp_registrar_chofer
-    @nombrechofer VARCHAR(100),
-    @apellidochofer VARCHAR(100),
-    @DUIchofer CHAR(10),
-    @fechanacimiento DATE,
-    @idbus INT
+CREATE PROCEDURE sp_registrar_choferes
+    @nombre_completo VARCHAR(150),
+    @telefono_chofer char(9),
+    @id_bus INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        INSERT INTO choferes (
-            nombre_chofer,
-            apellido_chofer,
-            DUI_chofer,
-            fecha_nacimiento,
-            id_bus
-        )
-        VALUES (
-            @nombrechofer,
-            @apellidochofer,
-            @DUIchofer,
-            @fechanacimiento,
-            @idbus
-        );
+        INSERT INTO choferes(nombre_completo_chofer, telefono_chofer, id_bus)
+        VALUES (@nombre_completo, @telefono_chofer, @id_bus);
     END TRY
     BEGIN CATCH
         THROW;
@@ -314,28 +201,382 @@ BEGIN
 END;
 GO
 
--- procedimiento almacenado para la tabla de telefonos de choferes
 
-CREATE PROCEDURE sp_registrar_telefono_chofer
-    @telefonochoferes VARCHAR(20),
-    @idchofer INT
+
+-- Ejecutador de procedimientos almacenados
+
+--usuarios
+EXEC sp_registrar_usuario
+    @nombre_completo = 'Daniel Salguero',
+    @correo = 'daniel@example.com',
+    @usuario = 'dsalguero',
+    @password = 'Academia2025'
+
+ 
+-- rutas
+EXEC sp_registrar_rutas 
+    @nombre_ruta = 'Ruta 101',
+    @descripcion_ruta = 'Ruta que va del Centro hasta la casa de Javier';
+
+EXEC sp_registrar_rutas 
+    @nombre_ruta = 'Ruta 101-B',
+    @descripcion_ruta = 'Ruta que va del Centro hasta la casa de Enrique';
+
+-- Insertar una coordenada de prueba
+EXEC sp_registrar_coordenadas 
+    @latitud = 13.6990000,
+    @longitud = -89.1910000;
+
+-- Insertar otra coordenada
+EXEC sp_registrar_coordenadas 
+    @latitud = 13.7005000,
+    @longitud = -89.1902000;
+
+EXEC sp_registrar_coordenadas @latitud=13.6991000, @longitud=-89.1911000;
+EXEC sp_registrar_coordenadas @latitud=13.6992000, @longitud=-89.1912000;
+EXEC sp_registrar_coordenadas @latitud=13.6993000, @longitud=-89.1913000;
+EXEC sp_registrar_coordenadas @latitud=13.6994000, @longitud=-89.1914000;
+EXEC sp_registrar_coordenadas @latitud=13.6995000, @longitud=-89.1915000;
+EXEC sp_registrar_coordenadas @latitud=13.6996000, @longitud=-89.1916000;
+EXEC sp_registrar_coordenadas @latitud=13.6997000, @longitud=-89.1917000;
+EXEC sp_registrar_coordenadas @latitud=13.6998000, @longitud=-89.1918000;
+EXEC sp_registrar_coordenadas @latitud=13.6999000, @longitud=-89.1919000;
+EXEC sp_registrar_coordenadas @latitud=13.7000000, @longitud=-89.1920000;
+EXEC sp_registrar_coordenadas @latitud=13.7001000, @longitud=-89.1921000;
+EXEC sp_registrar_coordenadas @latitud=13.7002000, @longitud=-89.1922000;
+EXEC sp_registrar_coordenadas @latitud=13.7003000, @longitud=-89.1923000;
+EXEC sp_registrar_coordenadas @latitud=13.7004000, @longitud=-89.1924000;
+EXEC sp_registrar_coordenadas @latitud=13.7005000, @longitud=-89.1925000;
+
+-- Ruta 101
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=1, @orden=1;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=2, @orden=2;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=3, @orden=3;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=4, @orden=4;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=5, @orden=5;
+
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=6, @orden=6;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=7, @orden=7;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=8, @orden=8;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=9, @orden=9;
+EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=10, @orden=10;
+
+-- consulta para ver las coordenadas de una ruta, ordenada
+SELECT id_punto_ruta, longitud, latitud, nombre_ruta from puntos_ruta pr
+INNER JOIN rutas r on pr.id_ruta = r.id_ruta
+INNER JOIN coordenadas c on pr.id_coordenada = c.id_coordenada
+ORDER BY pr.orden ASC
+
+-- buses
+EXEC sp_registrar_buses @numero_placa='P000 101', @estado_bus = 1, @id_ruta=1, @id_usuario=2; -- @id_usuario=1;
+EXEC sp_registrar_buses @numero_placa='P 9 1A2', @estado_bus = 1, @id_ruta=2, @id_usuario=2; -- @id_usuario=1;
+
+
+-- consulta para que aparezca una sola vez la placa si aparece en varios registros
+SELECT 
+CASE WHEN ROW_NUMBER() OVER(PARTITION BY b.numero_placa ORDER BY pr.orden) = 1 -- el primer registro donde aparece el numero_placa va a mostrar numero_placa
+THEN b.numero_placa 
+ELSE '' 
+END AS numero_placa,
+c.latitud, c.longitud, r.nombre_ruta
+FROM buses b
+INNER JOIN rutas r ON b.id_ruta = r.id_ruta
+INNER JOIN puntos_ruta pr ON pr.id_ruta = r.id_ruta
+INNER JOIN coordenadas c ON pr.id_coordenada = c.id_coordenada
+ORDER BY b.numero_placa, pr.orden;
+
+-- choferes
+EXEC sp_registrar_choferes @nombre_completo = 'Enrique Rafael deL Ano', @telefono_chofer = '9999-0000', @id_bus=5; --  @id_bus = 1
+EXEC sp_registrar_choferes @nombre_completo = 'Javier Boliviano', @telefono_chofer = '9909-0000', @id_bus=4; --  @id_bus = 1
+
+-- Procedimiento almacenado para validar el usuario y su contraseña
+CREATE PROCEDURE sp_validar_usuario_login
+    @usuario NVARCHAR(100),
+    @password NVARCHAR(200)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- SAL usada en sp_registrar_usuario: equipovicturbo
+    DECLARE @salt NVARCHAR(15) = 'equipovicturbo';
+    
+    -- Hash SHA2_256(SAL + contraseña)
+    DECLARE @hash_entrada VARBINARY(32) = 
+        HASHBYTES('SHA2_256', @salt + @password);
+        
+    -- Convertir el hash de entrada a VARCHAR para compararlo con el de la DB
+    DECLARE @hash_comparar VARCHAR(100) = CONVERT(VARCHAR(100), @hash_entrada, 2);
+
+    -- Seleccionar el usuario si el nombre de usuario y el hash coinciden
+    SELECT 
+        id_usuario, 
+        usuario, 
+        correo_electronico_usuario, 
+        usuario 
+    FROM usuarios
+    WHERE 
+        usuario = @usuario 
+        AND contraseña_usuario = @hash_comparar;
+END;
+GO
+
+
+
+-- procedimiento almacenado para eliminar
+-- Eliminación de usuarios
+
+CREATE PROCEDURE sp_eliminar_usuario
+  @id_usuario INT 
+AS
+BEGIN
+  DELETE FROM usuarios
+  WHERE id_usuario = @id_usuario;
+END;
+GO
+
+SELECT * FROM usuarios;
+-- EXEC sp_eliminar_usuario @id_usuario = 1 
+
+
+-- eliminar coordenadas
+CREATE PROCEDURE sp_eliminar_coordenadas
+  @id_coordenada INT
+AS
+BEGIN
+  DELETE FROM coordenadas
+  WHERE id_coordenada = @id_coordenada;
+END;
+GO
+
+SELECT * FROM coordenadas;
+-- EXEC sp_eliminar_coordenadas @id_coordenada = 1;
+
+
+-- eliminar rutas
+CREATE PROCEDURE sp_eliminar_rutas
+  @id_ruta INT
+AS
+BEGIN
+  DELETE FROM rutas
+  WHERE id_ruta = @id_ruta;
+END;
+GO
+
+SELECT * FROM rutas;
+-- EXEC sp_eliminar_rutas @id_ruta = 1;
+
+
+-- eliminar relación coordenadas y rutas
+CREATE PROCEDURE sp_eliminar_coord_rutas
+  @id_punto_ruta INT
+AS
+BEGIN
+  DELETE FROM puntos_ruta
+  WHERE id_punto_ruta = @id_punto_ruta;
+END;
+GO
+
+SELECT * FROM puntos_ruta;
+-- EXEC sp_eliminar_coord_rutas @id_punto_ruta = 1;
+
+
+-- eliminar buses
+CREATE PROCEDURE sp_eliminar_buses
+  @id_bus INT
+AS
+BEGIN
+  DELETE FROM buses
+  WHERE id_bus = @id_bus;
+END;
+GO
+
+SELECT * FROM buses;
+-- EXEC sp_eliminar_buses @id_bus = 1;
+
+
+-- eliminar choferes
+CREATE PROCEDURE sp_eliminar_choferes
+  @id_chofer INT
+AS
+BEGIN
+  DELETE FROM choferes
+  WHERE id_chofer = @id_chofer;
+END;
+GO
+
+SELECT * FROM choferes;
+-- EXEC sp_eliminar_choferes @id_chofer = 1;
+
+------------------------------------------------------
+
+
+
+-- procedimientos almacenados para actualizar datos
+-- Actualizar usuarios
+
+CREATE PROCEDURE sp_actualizar_usuario
+    @id_usuario INT,
+    @nombre_completo VARCHAR(150),
+    @correo VARCHAR(100),
+    @usuario VARCHAR(100),
+    @password VARCHAR(200)
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        INSERT INTO telefonos_choferes (
-            telefono_choferes,
-            id_chofer
-        )
-        VALUES (
-            @telefonochoferes,
-            @idchofer
-        );
+        
+        DECLARE @salt NVARCHAR(15) = 'equipovicturbo';
+
+        -- Hash SHA2_256(SAL + contraseña)
+        DECLARE @hash VARBINARY(32) =
+            HASHBYTES('SHA2_256', @salt + @password);
+
+        UPDATE usuarios SET nombre_completo_usuario = @nombre_completo,
+        correo_electronico_usuario = @correo,
+        usuario = @usuario,
+        contraseña_usuario = @hash
+        WHERE id_usuario = @id_usuario
     END TRY
     BEGIN CATCH
         THROW;
     END CATCH
 END;
 GO
+
+SELECT * FROM usuarios;
+-- EXEC sp_actualizar_usuario @id_usuario = 1, @nombre_completo = 'Gustavio Rafael Del Ano', @correo = 'gustavio@gmail.com', @usuario = 'perunoesclave', @password = 'hondurasesclave1234';
+
+-- Actualizar buses
+CREATE PROCEDURE sp_actualizar_buses
+    @id_bus INT,
+    @numero_placa VARCHAR(10),
+    @estado_bus INT,
+    @id_ruta INT,
+    @id_usuario INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        UPDATE buses SET numero_placa = @numero_placa,
+        estado_bus = @estado_bus,
+        id_ruta = @id_ruta,
+        id_usuario = @id_usuario
+        WHERE id_bus = @id_bus
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+SELECT * FROM buses;
+-- EXEC sp_actualizar_buses @id_bus = 4, @numero_placa = 'P-12345', @estado_bus = 1, @id_ruta = 2, @id_usuario = 1; -- @id_bus = 1
+
+-- actualizar coordenadas
+
+CREATE PROCEDURE sp_actualizar_coordenadas
+    @id_coordenada INT,
+    @latitud DECIMAL(10, 7),
+    @longitud DECIMAL(10, 7)
+AS
+BEGIN
+    
+
+    BEGIN TRY
+        UPDATE coordenadas
+        SET 
+            latitud = @latitud,
+            longitud = @longitud
+        WHERE id_coordenada = @id_coordenada;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+SELECT * FROM coordenadas;
+-- EXEC sp_actualizar_coordenadas @id_coordenada = 1, @latitud = 13.6929, @longitud = -89.2182;
+
+-- actualizar rutas
+CREATE PROCEDURE sp_actualizar_ruta
+    @id_ruta INT,
+    @nombre_ruta VARCHAR(10),
+    @descripcion_ruta VARCHAR(1000)
+AS
+BEGIN
+
+    BEGIN TRY
+        UPDATE rutas
+        SET nombre_ruta = @nombre_ruta,
+            descripcion_ruta = @descripcion_ruta
+        WHERE id_ruta = @id_ruta;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+SELECT * FROM rutas;
+-- EXEC sp_actualizar_ruta @id_ruta = 1, @nombre_ruta = 'Ruta 01', @descripcion_ruta = 'Ruta principal del centro al sur.';
+
+-- actualizar buses
+
+create procedure sp_actualizar_puntos_ruta
+    @id_punto_ruta INT,
+    @id_ruta INT,
+    @id_coordenada INT
+AS
+    BEGIN
+    
+    BEGIN TRY
+    UPDATE puntos_ruta
+        SET id_ruta = @id_ruta,
+            id_coordenada = @id_coordenada
+        WHERE id_punto_ruta = @id_punto_ruta;
+    END TRY
+    BEGIN CATCH
+    THROW;
+    END CATCH
+
+END;
+GO
+
+SELECT * FROM puntos_ruta;
+-- EXEC sp_actualizar_puntos_ruta @id_punto_ruta = 1, @id_ruta = 2, @id_coordenada = 5;
+
+-- Actualizar choferes
+CREATE PROCEDURE sp_actualizar_chofer
+    @id_chofer INT,
+    @nombre_completo_chofer VARCHAR(100),
+    @telefono_chofer CHAR(9),
+    @id_bus INT
+AS
+BEGIN
+
+    BEGIN TRY
+        UPDATE choferes
+        SET nombre_completo_chofer = @nombre_completo_chofer,
+            telefono_chofer = @telefono_chofer,
+            id_bus = @id_bus
+        WHERE id_chofer = @id_chofer;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+SELECT * FROM choferes;
+-- EXEC sp_actualizar_chofer @id_chofer = 3, @nombre_completo_chofer = 'Juan Perez', @telefono_chofer = '77778888', @id_bus = 3; -- @id_chofer = 3
+
+
+SELECT * 
+FROM sys.tables;
+
+SELECT * FROM coordenadas
+SELECT * FROM rutas
+SELECT * from puntos_ruta
+
 
