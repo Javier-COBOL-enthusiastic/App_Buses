@@ -1,0 +1,51 @@
+Funciones de BusRepository:
+
+1. Método para Registrar un nuevo Bus: RegistrarBus(Bus nuevoBus)
+2. Método para Eliminar un Bus: EliminarBus(int id_bus)
+3. Método para actualizar bus mediante Id: ActualizarBus(Bus busAActualizar)
+4. Método para obtener la información de un bus por id: GetBusById(int idBus) 
+5. Método para obtener IDs de Rutas Distintas por ID de Usuario: GetRutasByUsuarioId(int idUsuario) --> Devuelve una lista
+6. Método para obtener una lista de ID de Buses por ID de Ruta y ID de Usuario: GetBusIdsByRutaAndUsuarioId(int idRuta, int idUsuario) --> Devuelve una lista
+
+Funciones de UsuarioRepository:
+
+1. Método para Registrar un nuevo Usuario: RegistrarUsuario(UsuarioRegistroDTO nuevoUsuario)
+2. Método para Eliminar un usuario: EliminarUsuario(int idUsuario)
+3. Método para Actualizar información de Usuario: ActualizarUsuario(Usuario usuarioAActualizar)
+4. Método para Iniciar Sesión (Login) y obtener información: Login(string nombreUsuario, string password)
+
+Funciones de RutasRepository:
+
+1. Método para Registrar una nueva Ruta: RegistrarRuta(Ruta nuevaRuta)
+2. Método para Eliminar una Ruta: EliminarRuta(int idRuta)
+3. Método para Actualizar la información de una Ruta: ActualizarRuta(Ruta rutaAActualizar)
+4. Método para obtener la información de una ruta por id: GetRutaById(int idRuta)
+
+Funciones de PuntosRutaRepository:
+
+1. Método para Agregar los puntos de la Ruta: RegistrarPuntosRuta(int idRuta, List<int> idsCoordenadas)
+2. Método para enlistar los puntos de la Ruta que se eliminan desde CoordenadasRepository: ObtenerIdsCoordenadasPorRuta(int idRuta)
+3. Método para Actualizar puntos de la Ruta: NO ESTOY SEGURO DE CREAR ESTE MÉTODO
+4. Método para obtener las coordenadas ordenadas de una ruta por su id: ObtenerCoordenadasDeRuta(int idRuta)
+
+NOTA:La función 1 necesita el id_ruta y una lista de ids de las coordenadas recién guardadas, es decir, necesita la lista que retorna la función 1 de CoordenadasRepository.
+
+NOTA: La función 2 crea una lista de los ids de las coordenadas relacionadas a una ruta, se debe guardar dicha lista en una variable para inmediatamente despues ser utilizada en la función 2 de CoordenadasRepository.
+
+Funciones de CoordenadasRepository:
+
+1. Método para Agregar las coordenadas de una ruta: RegistrarCoordenadas(List<Coordenada> nuevasCoordenadas)
+2. Método para Eliminar las coordenadas de una ruta: EliminarCoordenadas(List<int> idsCoordenadasAEliminar)
+3. Método para Actualizar las coordenadas de una ruta: NO ESTOY SEGURO DE CREAR ESTE MÉTODO
+
+NOTA: La función 1 retorna una lista de los ids de las coordenadas recién insertadas, que debe ser guardada inmediatamente en una variable para luego ser utilizada en la función 1 de PuntosRutaRepository.
+
+NOTA: La función 2 toma una lista de ids de coordenadas que corresponden a una ruta especifica y elimina las filas de dichos ids, la lista que toma es la misma lista que devuelve la función 2 de PuntosRutaRepository
+
+Funciones de ChoferRepository:
+
+1. 
+2. 
+3. 
+4. 
+5. 

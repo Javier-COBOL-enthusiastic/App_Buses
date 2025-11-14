@@ -14,6 +14,8 @@ builder.Services.AddScoped<BusRepository>();
 builder.Services.AddScoped<UsuarioRepository>();
 builder.Services.AddScoped<ChoferRepository>();
 builder.Services.AddScoped<RutasRepository>();
+builder.Services.AddScoped<CoordenadasRepository>();
+builder.Services.AddScoped<PuntosRutaRepository>();
 
 builder.Services.AddCors(options =>
 {
