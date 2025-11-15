@@ -1,25 +1,44 @@
+
+Enrique Hernández
+
+En este documento se explican y se ponen las funciones de cada uno de los repositorios, el tipo de entrada de cada uno de sus métodos y sus tipo de salida.
+Además, también se ponen notas explicativas acerca de como debe de usarse algunos de estos métodos.
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+
 Funciones de BusRepository:
 
-1. Método para Registrar un nuevo Bus: RegistrarBus(Bus nuevoBus)
+1. Método para Registrar un nuevo Bus: RegistrarBus(BusRegistroDTO nuevoBus)  <-- Necesita de un objetivo tipo BusRegistroDTO
 2. Método para Eliminar un Bus: EliminarBus(int id_bus)
-3. Método para actualizar bus mediante Id: ActualizarBus(Bus busAActualizar)
+3. Método para actualizar bus mediante Id: ActualizarBus(Bus busAActualizar)  <-- Necesita de un objeto tipo Bus
 4. Método para obtener la información de un bus por id: GetBusById(int idBus) 
 5. Método para obtener IDs de Rutas Distintas por ID de Usuario: GetRutasByUsuarioId(int idUsuario) --> Devuelve una lista
 6. Método para obtener una lista de ID de Buses por ID de Ruta y ID de Usuario: GetBusIdsByRutaAndUsuarioId(int idRuta, int idUsuario) --> Devuelve una lista
 
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+
 Funciones de UsuarioRepository:
 
-1. Método para Registrar un nuevo Usuario: RegistrarUsuario(UsuarioRegistroDTO nuevoUsuario)
-2. Método para Eliminar un usuario: EliminarUsuario(int idUsuario)
-3. Método para Actualizar información de Usuario: ActualizarUsuario(Usuario usuarioAActualizar)
-4. Método para Iniciar Sesión (Login) y obtener información: Login(string nombreUsuario, string password)
+1. Método para Registrar un nuevo Usuario: RegistrarUsuario(UsuarioRegistroDTO nuevoUsuario)  <-- Necesita de un objeto tipo UsuarioRegistroDTO
+2. Método para Eliminar un usuario por su Id: EliminarUsuario(int idUsuario)
+3. Método para Actualizar información de Usuario: ActualizarUsuario(Usuario usuarioAActualizar)  <-- Necesita de un objeto tipo Usuario
+4. Método para Iniciar Sesión (Login) y obtener información: Login(string nombreUsuario, string password) --> Devuelve un objeto tipo Usuario_validado
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
 
 Funciones de RutasRepository:
 
-1. Método para Registrar una nueva Ruta: RegistrarRuta(Ruta nuevaRuta)
+1. Método para Registrar una nueva Ruta: RegistrarRuta(Ruta nuevaRuta)  <-- Necesita de un objeto tipo Ruta (en este caso se ignora el id_ruta del objeto, poner cualquier número)
 2. Método para Eliminar una Ruta: EliminarRuta(int idRuta)
-3. Método para Actualizar la información de una Ruta: ActualizarRuta(Ruta rutaAActualizar)
+3. Método para Actualizar la información de una Ruta: ActualizarRuta(Ruta rutaAActualizar)  <-- Necesita de un objeto tipo Ruta
 4. Método para obtener la información de una ruta por id: GetRutaById(int idRuta)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
 
 Funciones de PuntosRutaRepository:
 
@@ -32,6 +51,9 @@ NOTA:La función 1 necesita el id_ruta y una lista de ids de las coordenadas rec
 
 NOTA: La función 2 crea una lista de los ids de las coordenadas relacionadas a una ruta, se debe guardar dicha lista en una variable para inmediatamente despues ser utilizada en la función 2 de CoordenadasRepository.
 
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+
 Funciones de CoordenadasRepository:
 
 1. Método para Agregar las coordenadas de una ruta: RegistrarCoordenadas(List<Coordenada> nuevasCoordenadas)
@@ -42,10 +64,15 @@ NOTA: La función 1 retorna una lista de los ids de las coordenadas recién inse
 
 NOTA: La función 2 toma una lista de ids de coordenadas que corresponden a una ruta especifica y elimina las filas de dichos ids, la lista que toma es la misma lista que devuelve la función 2 de PuntosRutaRepository
 
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+
 Funciones de ChoferRepository:
 
-1. 
-2. 
-3. 
-4. 
-5. 
+1. Método para gregar un nuevo chofer: RegistrarChofer(ChoferRegistroDTO NuevoChofer)  <-- Necesita de un objeto tipo ChoferRegistroDTO
+2. Método para eliminar un chofer por su Id: EliminarChofer(int idChofer)
+3. Método para actualizar un Chofer: ActualizarChofer(Chofer ChoferAActualizar)  <-- Necesita de un objetivo tipo Chofer
+4. Método para obtener la información de un chofer por id_bus: GetChoferByIdBus(int idBus)  --> Devuelve un objeto tipo Chofer
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+

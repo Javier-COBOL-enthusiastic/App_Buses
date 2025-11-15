@@ -16,7 +16,7 @@ namespace Data.Repositories
         }
 
         // 1. Método para Registrar un nuevo Bus
-        public void RegistrarBus(Bus nuevoBus)
+        public void RegistrarBus(BusRegistroDTO nuevoBus)
         {
             string spName = "sp_registrar_buses";
 
