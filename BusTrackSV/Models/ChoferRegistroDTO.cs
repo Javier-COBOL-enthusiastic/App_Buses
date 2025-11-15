@@ -1,8 +1,7 @@
 namespace BusTrackSV.Models
 {
-    public class Chofer
+    public class ChoferRegistroDTO
     {
-        public int id_chofer { get; set; }
         public string nombre_completo { get; set; }
         public string telefono_chofer { get; set; }
         public int id_bus { get; set; }

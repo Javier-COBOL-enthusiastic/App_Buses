@@ -26,9 +26,9 @@ namespace Data.Repositories
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     
-                    cmd.Parameters.AddWithValue("@nombre", nuevoUsuario.nombre);
+                    cmd.Parameters.AddWithValue("@nombre_completo", nuevoUsuario.nombre_completo);
                     cmd.Parameters.AddWithValue("@correo", nuevoUsuario.correo);
-                    cmd.Parameters.AddWithValue("@usuario", nuevoUsuario.nombreUsuario);
+                    cmd.Parameters.AddWithValue("@usuario", nuevoUsuario.usuario);
                     cmd.Parameters.AddWithValue("@password", nuevoUsuario.password);
                     
                     cmd.ExecuteNonQuery();
@@ -78,9 +78,9 @@ namespace Data.Repositories
         }
 
         // 4. Método para Iniciar Sesión (Login) y obtener información
-        public Usuario Login(string nombreUsuario, string password)
+        public Usuario_validado Login(string nombreUsuario, string password)
         {
-            Usuario usuario = null;
+            Usuario_validado usuario = null;
             
             string spName = "sp_validar_usuario_login"; 
 
@@ -96,11 +96,11 @@ namespace Data.Repositories
                     {
                         if (reader.Read())
                         {
-                            usuario = new Usuario
+                            usuario = new Usuario_validado
                             {
                                 id_usuario = reader.GetInt32(0),
-                                nombre_usuario = reader.GetString(1),
-                                correo_electronico_usuario = reader.GetString(2),
+                                nombre_comleto = reader.GetString(1),
+                                correo = reader.GetString(2),
                                 usuario = reader.GetString(3)
                             };
                         }

@@ -1,7 +1,8 @@
-// Clase para los datos de entrada
-public class Coordenada
+namespace BusTrackSV.Models
 {
-    // NO incluye el ID, ya que es autoincremental
-    public decimal latitud { get; set; }
-    public decimal longitud { get; set; }
+    public class Coordenada
+    {
+        public decimal latitud { get; set; }
+        public decimal longitud { get; set; }
+    }
 }
