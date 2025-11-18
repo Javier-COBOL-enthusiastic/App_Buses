@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using ConexionBD;
 using BusTrackSV.Models;
 
@@ -73,9 +73,9 @@ namespace Data.Repositories
         }
 
         // 4. Método para obtener la información de una ruta por su id
-        public Ruta GetRutaById(int idRuta)
+        public Ruta? GetRutaById(int idRuta)
         {
-            Ruta ruta=null;
+            Ruta? ruta=null;
             
             string sql="SELECT id_ruta, nombre_ruta, descripcion_ruta FROM rutas WHERE id_ruta=@id_ruta";
 

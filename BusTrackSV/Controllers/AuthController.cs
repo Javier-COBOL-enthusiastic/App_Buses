@@ -6,9 +6,9 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-
-record LoginRequest(string email, string password);
-
+using DB = Data.Repositories;
+using Microsoft.Data.SqlClient;
+using System.Text.RegularExpressions;
 
 namespace BusTrackSV.API
 {    
@@ -19,48 +19,56 @@ namespace BusTrackSV.API
         public static void MapAuth(this WebApplication app)
         {
             var group = app.MapGroup("/auth");
-            group.MapPost("/register", (Modelos.User u) =>
-            {
+            group.MapPost("/register", (Modelos.UsuarioRegistroDTO u, DB.UsuarioRepository db) =>
+            {                
+                //System.Console.WriteLine(u.nombre_completo);
                 try
                 {
-                    System.Console.WriteLine(u.Nombre);
-                    AuthService.Registrar(u);
-                    return Results.Json(new { mensaje = u });
+                    var res = AuthService.Registrar(u, db);                                         
+                    return Results.Accepted();
+                }                
+                catch(SqlException ex)
+                {
+                    switch (ex.Number)
+                    {
+                        case 2627:
+                            return Results.Conflict(new {error = "Ya existe un usuario con este correo."});
+                        default:
+                            return Results.Conflict(new { error = ex.Message});
+                    }
                 }
                 catch (Exception ex)
-                {
-                    return Results.Conflict(ex.Message);
+                {                    
+                    return Results.Problem(ex.Message);
                 }
+                              
             });
 
-            group.MapPost("/login", (LoginRequest req) =>
-            {
-                if (req.email != "prueba@gmail.com" && req.password != "qwerty123!!")
+            group.MapPost("/login", (Modelos.LoginRequest req, DB.UsuarioRepository db) =>
+            {            
+                // System.Console.WriteLine(req.usuario);
+                // System.Console.WriteLine(req.password);
+                var res = AuthService.Login(req, db);    
+                if(res == null)
                 {
-                    return Results.Unauthorized();
+                    return Results.Problem("Autenticación problema");
                 }
-                                
+                else if(res.id_usuario < 0)
+                {
+                    return Results.BadRequest("Campos requeridos incompletos");
+                }
+
                 var claims = new[]
                 {
-                    new Claim(ClaimTypes.Name, req.email)
+                    new Claim(ClaimTypes.Name, req.usuario),
+                    new Claim("userId", res.id_usuario.ToString())
                 };
-
-                // TODO: Agregar con DataBase
-                // var ret = AuthService.Login(req.email, req.password);
-                // if (ret == null)
-                // {
-                //     return Results.BadRequest("Email o Password incorrectos");
-                // }
-                // return Results.Json(new { mensaje = ret });
                 var creds = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256);
                 var token = new JwtSecurityToken(claims: claims, expires: DateTime.UtcNow.AddHours(1), signingCredentials: creds);
                 var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
-                return Results.Ok(new { token = tokenString, user =  req.email });
+                return Results.Ok(new { token = tokenString, user = req.usuario });
             });
         }
-
-
-
     }
 }

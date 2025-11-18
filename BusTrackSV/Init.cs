@@ -5,7 +5,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-
+using ConexionBD;
+using Data.Repositories;
 
 /*using ConexionBD;
 using Data.Repositories;*/
@@ -27,15 +28,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     }
 );
-/*var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-//builder.Services.AddSingleton(new DbConnector(connectionString));
+if(connectionString == null)
+{
+    throw new Exception("Connection string 'DefaultConnection' not found.");
+}
 
 builder.Services.AddScoped<DbConnector>(_ => new DbConnector(connectionString));
 
 builder.Services.AddScoped<BusRepository>(); 
 builder.Services.AddScoped<UsuarioRepository>();
-builder.Services.AddScoped<RutasRepository>();*/
+builder.Services.AddScoped<ChoferRepository>();
+builder.Services.AddScoped<RutasRepository>();
+builder.Services.AddScoped<CoordenadasRepository>();
+builder.Services.AddScoped<PuntosRutaRepository>();
 
 
 builder.Services.AddCors(options =>
@@ -65,12 +72,7 @@ app.UseHttpsRedirection();
 app.UseCors("PermitirTodo");
 
 app.UseAuthorization();
-app.UseAuthorization();
 
-app.MapGet("/secure", [Authorize]() =>
-{
-    return Results.Json(new { msg = "Ruta protegida con JWT" });   
-});
 app.MapAuth();
 app.MapBus();
 

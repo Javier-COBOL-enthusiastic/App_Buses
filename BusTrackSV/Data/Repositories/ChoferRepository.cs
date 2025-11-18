@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using ConexionBD;
 using BusTrackSV.Models;
 
@@ -10,7 +10,7 @@ namespace Data.Repositories
     {
         private readonly DbConnector _connector;
 
-        public BusRepository(DbConnector connector)
+        public ChoferRepository(DbConnector connector)
         {
             _connector = connector;
         }
@@ -20,7 +20,7 @@ namespace Data.Repositories
         {
             string spName="sp_registrar_choferes";
             
-            using (SqlConnection cnx = _conector.CreateConection())
+            using (SqlConnection cnx = _connector.CreateConnection())
             {
                 using (SqlCommand cmd = new SqlCommand(spName, cnx))
                 {
@@ -28,7 +28,7 @@ namespace Data.Repositories
 
                     cmd.Parameters.AddWithValue("@nombre_completo", NuevoChofer.nombre_completo);
                     cmd.Parameters.AddWithValue("@telefono_chofer", NuevoChofer.telefono_chofer);
-                    cmd.Parameters.AddWithValue("@id_bus", NuevoChofer.id_bus)
+                    cmd.Parameters.AddWithValue("@id_bus", NuevoChofer.id_bus);
 
                     cmd.ExecuteNonQuery();
                 }                
@@ -94,7 +94,7 @@ namespace Data.Repositories
                             {
                                 id_chofer = reader.GetInt32(0),
                                 nombre_completo = reader.GetString(1),
-                                telefono_chofer = reader.GetBoolean(2),
+                                telefono_chofer = reader.GetString(2),
                                 id_bus = reader.GetInt32(3)
                             };
                         }

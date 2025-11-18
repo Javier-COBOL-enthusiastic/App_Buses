@@ -1,6 +1,9 @@
 namespace BusTrackSV.Models
 {
-    public record LoginRequest(string correo, string password);
+    public class LoginRequest{
+        public string usuario {get; set;} = "";
+        public string password {get; set;} = "";
+    };
     public class Usuario
     {
         public int id_usuario { get; set; }
