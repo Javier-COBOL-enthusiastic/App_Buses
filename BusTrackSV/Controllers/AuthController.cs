@@ -1,30 +1,26 @@
-﻿using Modelos = BusTrackSV.Models;
-using Service = BusTrackSV.Service;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using BusTrackSV.Models;
+using BusTrackSV.Service;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using DB = Data.Repositories;
 using Microsoft.Data.SqlClient;
-using System.Text.RegularExpressions;
+
 
 namespace BusTrackSV.API
 {    
     public static class AuthController
     {
-        private static string key = "equipovicturboequipovicturboequipovicturboequipovicturbo"; //te odio Ivan;
-        public static Service.AuthService AuthService = new Service.AuthService();
+        private static string key = "equipovicturboequipovicturboequipovicturboequipovicturbo"; //te odio Ivan;        
         public static void MapAuth(this WebApplication app)
         {
             var group = app.MapGroup("/auth");
-            group.MapPost("/register", (Modelos.UsuarioRegistroDTO u, DB.UsuarioRepository db) =>
+            group.MapPost("/register", (UsuarioRegistroDTO u, AuthService authService) =>
             {                
                 //System.Console.WriteLine(u.nombre_completo);
                 try
                 {
-                    var res = AuthService.Registrar(u, db);                                         
+                    var res = authService.Registrar(u);                                         
                     return Results.Accepted();
                 }                
                 catch(SqlException ex)
@@ -44,11 +40,11 @@ namespace BusTrackSV.API
                               
             });
 
-            group.MapPost("/login", (Modelos.LoginRequest req, DB.UsuarioRepository db) =>
+            group.MapPost("/login", (LoginRequest req, AuthService authService) =>
             {            
                 // System.Console.WriteLine(req.usuario);
                 // System.Console.WriteLine(req.password);
-                var res = AuthService.Login(req, db);    
+                var res = authService.Login(req);    
                 if(res == null)
                 {
                     return Results.Problem("Autenticación problema");

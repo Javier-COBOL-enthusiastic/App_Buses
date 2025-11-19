@@ -1,20 +1,16 @@
-﻿using Service = BusTrackSV.Service;
-namespace BusTrackSV.API;
+﻿using BusTrackSV.Service;
 using Microsoft.AspNetCore.Authorization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Data.Repositories;
-using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
 using BusTrackSV.Models;
 
+namespace BusTrackSV.API;
 public static class BusController
 {
-	public static Service.BusService BusService = new Service.BusService();
-
+	
 	public static void MapBus(this WebApplication app)
     {
 		var group = app.MapGroup("/buses");
-		group.MapGet("/ids", [Authorize](HttpContext context, Data.Repositories.BusRepository db)  =>
+		group.MapGet("/ids", [Authorize](HttpContext context, BusService busService)  =>
         {
             var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -24,7 +20,7 @@ public static class BusController
             var userId = userIdClaim.Value;
             try
             {
-                var res = BusService.getIds(int.Parse(userId), db);                
+                var res = busService.getIds(int.Parse(userId));                
                 return Results.Json(res);
             }
             catch(UserInvalidado ex)
@@ -36,11 +32,11 @@ public static class BusController
                 return Results.Problem(ex.Message);
             }                        
         }); 
-        group.MapGet("/get/{id:int}", [Authorize](int id, BusRepository db) =>
+        group.MapGet("/get/{id:int}", [Authorize](int id, BusService busService) =>
         {
             try
             {
-                var res = BusService.getBus(id, db);
+                var res = busService.getBus(id);
                 return Results.Json(res);
             }
             catch(NullValue)
@@ -53,7 +49,7 @@ public static class BusController
             }
         });
 
-        group.MapPost("/add", [Authorize](HttpContext ctx, BusRegistroDTO nbus, BusRepository db) =>
+        group.MapPost("/add", [Authorize](HttpContext ctx, BusRegistroDTO nbus, BusService busService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -63,7 +59,7 @@ public static class BusController
             var userId = userIdClaim.Value;
             try
             {
-                BusService.AddBus(int.Parse(userId), nbus, db);
+                busService.AddBus(int.Parse(userId), nbus);
                 return Results.Accepted();
             }
             catch(UserInvalidado ex)
@@ -84,7 +80,7 @@ public static class BusController
             }
         });
 
-        group.MapPut("/update", [Authorize](HttpContext ctx, Bus bus, BusRepository db) =>
+        group.MapPut("/update", [Authorize](HttpContext ctx, Bus bus, BusService busService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -93,7 +89,7 @@ public static class BusController
 
             try
             {
-                BusService.PutBus(int.Parse(userId), bus, db);
+                busService.PutBus(int.Parse(userId), bus);
                 return Results.Accepted();
             }
             catch(UserInvalidado ex)
@@ -112,7 +108,7 @@ public static class BusController
                 return Results.Problem(ex.Message);
             }
         });  
-        group.MapDelete("/delete/{id:int}", [Authorize](HttpContext ctx, int id, BusRepository db) =>
+        group.MapDelete("/delete/{id:int}", [Authorize](HttpContext ctx, int id, BusService busService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -121,7 +117,7 @@ public static class BusController
 
             try
             {
-                BusService.DeleteBus(int.Parse(userId), id, db);
+                busService.DeleteBus(int.Parse(userId), id);
                 return Results.Accepted();
             }
             catch(UserInvalidado ex)

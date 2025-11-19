@@ -1,10 +1,16 @@
-﻿using Modelos = BusTrackSV.Models;
-namespace BusTrackSV.Service;
+﻿using BusTrackSV.Models;
 using Data.Repositories;
 
+namespace BusTrackSV.Service;
 public class AuthService
 {
-    public Modelos.UsuarioRegistroDTO Registrar(Modelos.UsuarioRegistroDTO user, UsuarioRepository _usuarioRepository)
+
+    private readonly UsuarioRepository _usuarioRepository;
+    public AuthService(UsuarioRepository usuarioRepository)
+    {
+        _usuarioRepository = usuarioRepository;
+    }
+    public UsuarioRegistroDTO Registrar(UsuarioRegistroDTO user)
     {
         if(user.usuario == "" || user.correo == "" || user.nombre_completo == "" || user.password == "")
         {
@@ -16,11 +22,11 @@ public class AuthService
         
     }
 
-    public Modelos.UsuarioValidado? Login(Modelos.LoginRequest req, UsuarioRepository _usuarioRepository)    
+    public UsuarioValidado? Login(LoginRequest req)    
     {
         if(req.usuario == "" || req.password == "")
         {
-            Modelos.UsuarioValidado ans =  new Modelos.UsuarioValidado();
+            UsuarioValidado ans =  new UsuarioValidado();
             ans.id_usuario = -1;
             return ans;
         }

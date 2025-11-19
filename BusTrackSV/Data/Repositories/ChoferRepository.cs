@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using ConexionBD;
@@ -74,9 +73,9 @@ namespace Data.Repositories
         }
 
         // 4. Método para obtener la información de un chofer por id_bus
-        public Chofer GetChoferByIdBus(int idBus)
+        public Chofer? GetChoferByIdBus(int idBus)
         {
-            Chofer chofer = null;
+            Chofer? chofer = null;
 
             string sql = "SELECT id_chofer, nombre_completo_chofer, telefono_chofer, id_bus FROM choferes WHERE id_bus = @id_bus";
 
@@ -102,6 +101,31 @@ namespace Data.Repositories
                 }
             }
             return chofer;
+        }
+
+        public List<int> GetChoferIdByUserID(int userID)
+        {
+            List<int> clst = new List<int>();
+
+            string sql = "SELECT c.id_chofer, b.id_bus, u.id_usuario FROM choferes c INNER JOIN buses b on c.id_bus = b.id_bus INNER JOIN usuarios u on b.id_usuario = u.id_usuario WHERE id_usuario = @id_usuario";
+
+            using (SqlConnection cnx = _connector.CreateConnection())
+            {
+                using (SqlCommand cmd =  new SqlCommand(sql, cnx))
+                {
+                    cmd.Parameters.AddWithValue("@id_usuario", userID);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            var id = reader.GetInt32(0);
+                            clst.Add(id);
+                        }
+                    }
+                }   
+            }
+            
+            return clst;
         }
     }
 }

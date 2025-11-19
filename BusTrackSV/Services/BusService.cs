@@ -1,25 +1,28 @@
-﻿using Modelos = BusTrackSV.Models;
+﻿using BusTrackSV.Models;
 using Data.Repositories;
-using BusTrackSV.Models;
-using System.Data.SqlTypes;
 
 namespace BusTrackSV.Service;
 
 public class BusService
 {
-	public List<int> getIds(int UserId, BusRepository db)
+    private readonly BusRepository _busRepository;
+    public BusService(BusRepository busRepository)
+    {
+        _busRepository = busRepository;
+    }
+	public List<int> getIds(int UserId)
     {
         if(UserId < 0)
         {
             throw new UserInvalidado();
         }         
-        var res = db.GetBusesIDByUserID(UserId);        
+        var res = _busRepository.GetBusesIDByUserID(UserId);        
         return res;
     }
 
-    public Bus getBus(int busID, BusRepository db)
+    public Bus getBus(int busID)
     {
-        var res = db.GetBusById(busID);
+        var res = _busRepository.GetBusById(busID);
         if(res == null)
         {
             throw new NullValue();
@@ -27,7 +30,7 @@ public class BusService
         return res;
     }
 
-    public void AddBus(int UserID, BusRegistroDTO nbus, BusRepository db)
+    public void AddBus(int UserID, BusRegistroDTO nbus)
     {        
         if(UserID <= 0)
         {
@@ -44,15 +47,15 @@ public class BusService
             throw new CamposRequeridosException();
         }
 
-        if(db.RutaPertenceUsuario(nbus.id_ruta, UserID) == false)
+        if(_busRepository.RutaPertenceUsuario(nbus.id_ruta, UserID) == false)
         {
             throw new RutaNoRegistrada();
         }        
         
-        db.RegistrarBus(nbus);
+        _busRepository.RegistrarBus(nbus);
     }
 
-    public void PutBus(int userID, Bus bus, BusRepository db)
+    public void PutBus(int userID, Bus bus)
     {
         if(userID <= 0)
         {
@@ -60,7 +63,7 @@ public class BusService
         }
 
 
-        var buses = db.GetBusesIDByUserID(userID);
+        var buses = _busRepository.GetBusesIDByUserID(userID);
         if(buses.Contains(bus.id_bus) == false)
         {
             throw new UserInvalidado();
@@ -76,22 +79,23 @@ public class BusService
             throw new CamposRequeridosException();
         }
 
-        db.ActualizarBus(bus);            
+        _busRepository.ActualizarBus(bus);            
     }
 
-    public void DeleteBus(int userID, int busID, BusRepository db)
+    public void DeleteBus(int userID, int busID)
     {
         if(userID <= 0)
         {
             throw new UserInvalidado();
         }
 
-        var buses = db.GetBusesIDByUserID(userID);
+
+        var buses = _busRepository.GetBusesIDByUserID(userID);
         if(buses.Contains(busID) == false)
         {
             throw new UserInvalidado();
         }
 
-        db.EliminarBus(busID);
+        _busRepository.EliminarBus(busID);
     }
 }

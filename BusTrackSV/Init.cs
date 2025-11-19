@@ -1,4 +1,5 @@
 ﻿using BusTrackSV.API;
+using BusTrackSV.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -43,6 +44,11 @@ builder.Services.AddScoped<ChoferRepository>();
 builder.Services.AddScoped<RutasRepository>();
 builder.Services.AddScoped<CoordenadasRepository>();
 builder.Services.AddScoped<PuntosRutaRepository>();
+
+
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<BusService>();
+builder.Services.AddScoped<ChoferService>();
 
 
 builder.Services.AddCors(options =>

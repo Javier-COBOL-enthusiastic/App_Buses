@@ -2,7 +2,6 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using ConexionBD;
 using BusTrackSV.Models;
-using System.Collections.Generic;
 
 namespace Data.Repositories
 {
