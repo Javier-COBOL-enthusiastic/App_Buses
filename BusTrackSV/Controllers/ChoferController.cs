@@ -7,10 +7,12 @@ namespace BusTrackSV.API;
 
 public static class ChoferController
 {
-        public static void MapChofer(this WebApplication app)
+        public static void MapChoferController(this WebApplication app)
     {
         var group = app.MapGroup("/choferes");
-        group.MapGet("/get/{id:int}", [Authorize](HttpContext ctx, int id, ChoferService choferService) =>
+        group.RequireAuthorization();
+        
+        group.MapGet("/get/{id:int}", (HttpContext ctx, int id, ChoferService choferService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -32,7 +34,7 @@ public static class ChoferController
             }
         });
 
-        group.MapPost("/add", [Authorize](HttpContext ctx, ChoferRegistroDTO nch, ChoferService choferService) =>
+        group.MapPost("/add", (HttpContext ctx, ChoferRegistroDTO nch, ChoferService choferService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -58,7 +60,7 @@ public static class ChoferController
             }
         });
 
-        group.MapPut("/update", [Authorize](HttpContext ctx, Chofer nchofer, ChoferService choferService) =>
+        group.MapPut("/update", (HttpContext ctx, Chofer nchofer, ChoferService choferService) =>
         {
             var userIDclaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if(userIDclaim == null)
@@ -84,7 +86,7 @@ public static class ChoferController
                 return Results.Problem(ex.Message);
             }            
         });
-        group.MapDelete("/delete/{id:int}", [Authorize](HttpContext ctx, int id, ChoferService choferService) =>{
+        group.MapDelete("/delete/{id:int}", (HttpContext ctx, int id, ChoferService choferService) =>{
             var userIDclaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if(userIDclaim == null)
             {

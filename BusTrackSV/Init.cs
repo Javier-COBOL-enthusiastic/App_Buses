@@ -49,6 +49,7 @@ builder.Services.AddScoped<PuntosRutaRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<BusService>();
 builder.Services.AddScoped<ChoferService>();
+builder.Services.AddScoped<RutaService>();
 
 
 builder.Services.AddCors(options =>
@@ -79,7 +80,9 @@ app.UseCors("PermitirTodo");
 
 app.UseAuthorization();
 
-app.MapAuth();
-app.MapBus();
+app.MapAuthController();
+app.MapBusController();
+app.MapChoferController();
+app.MapRutaController();
 
 app.Run();

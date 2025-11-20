@@ -7,10 +7,12 @@ namespace BusTrackSV.API;
 public static class BusController
 {
 	
-	public static void MapBus(this WebApplication app)
+	public static void MapBusController(this WebApplication app)
     {
 		var group = app.MapGroup("/buses");
-		group.MapGet("/ids", [Authorize](HttpContext context, BusService busService)  =>
+        group.RequireAuthorization(); 
+        
+		group.MapGet("/ids", (HttpContext context, BusService busService)  =>
         {
             var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -32,7 +34,7 @@ public static class BusController
                 return Results.Problem(ex.Message);
             }                        
         }); 
-        group.MapGet("/get/{id:int}", [Authorize](int id, BusService busService) =>
+        group.MapGet("/get/{id:int}", (int id, BusService busService) =>
         {
             try
             {
@@ -49,7 +51,7 @@ public static class BusController
             }
         });
 
-        group.MapPost("/add", [Authorize](HttpContext ctx, BusRegistroDTO nbus, BusService busService) =>
+        group.MapPost("/add", (HttpContext ctx, BusRegistroDTO nbus, BusService busService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -80,7 +82,7 @@ public static class BusController
             }
         });
 
-        group.MapPut("/update", [Authorize](HttpContext ctx, Bus bus, BusService busService) =>
+        group.MapPut("/update", (HttpContext ctx, Bus bus, BusService busService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -108,7 +110,7 @@ public static class BusController
                 return Results.Problem(ex.Message);
             }
         });  
-        group.MapDelete("/delete/{id:int}", [Authorize](HttpContext ctx, int id, BusService busService) =>
+        group.MapDelete("/delete/{id:int}", (HttpContext ctx, int id, BusService busService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)

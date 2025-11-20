@@ -14,8 +14,8 @@ namespace Data.Repositories
             _connector = connector;
         }
 
-        // 1. Método para Registrar una nueva Ruta
-        public void RegistrarRuta(Ruta nuevaRuta)
+        // 1. Método para Registrar una nueva Ruta (ahora devuelve el id generado)
+        public int RegistrarRuta(Ruta nuevaRuta)
         {
             string spName = "sp_registrar_rutas";
 
@@ -24,11 +24,13 @@ namespace Data.Repositories
                 using (SqlCommand cmd = new SqlCommand(spName, cnx))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    
+
                     cmd.Parameters.AddWithValue("@nombre_ruta", nuevaRuta.nombre_ruta);
                     cmd.Parameters.AddWithValue("@descripcion_ruta", nuevaRuta.descripcion_ruta);
-                    
-                    cmd.ExecuteNonQuery();
+
+                    // se espera que el stored procedure haga: SELECT CAST(SCOPE_IDENTITY() AS INT) AS id_ruta;
+                    var result = cmd.ExecuteScalar();
+                    return result == null ? 0 : Convert.ToInt32(result);
                 }
             }
         }
@@ -43,14 +45,14 @@ namespace Data.Repositories
                 using (SqlCommand cmd = new SqlCommand(spName, cnx))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    
+
                     cmd.Parameters.AddWithValue("@id_ruta", idRuta);
-                    
+
                     cmd.ExecuteNonQuery();
                 }
             }
         }
-        
+
         // 3. Método para Actualizar la información de una Ruta
         public void ActualizarRuta(Ruta rutaAActualizar)
         {
@@ -61,11 +63,11 @@ namespace Data.Repositories
                 using (SqlCommand cmd = new SqlCommand(spName, cnx))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    
+
                     cmd.Parameters.AddWithValue("@id_ruta", rutaAActualizar.id_ruta);
                     cmd.Parameters.AddWithValue("@nombre_ruta", rutaAActualizar.nombre_ruta);
                     cmd.Parameters.AddWithValue("@descripcion_ruta", rutaAActualizar.descripcion_ruta);
-                    
+
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -75,7 +77,7 @@ namespace Data.Repositories
         public Ruta? GetRutaById(int idRuta)
         {
             Ruta? ruta=null;
-            
+
             string sql="SELECT id_ruta, nombre_ruta, descripcion_ruta FROM rutas WHERE id_ruta=@id_ruta";
 
             using (SqlConnection cnx = _connector.CreateConnection())
@@ -84,7 +86,7 @@ namespace Data.Repositories
                 {
                     // Añadir el parámetro para el ID de la Ruta
                     cmd.Parameters.AddWithValue("@id_ruta", idRuta);
-                    
+
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())

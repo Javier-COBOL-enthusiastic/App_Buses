@@ -1,6 +1,6 @@
 ﻿namespace BusTrackSV.Models
 {
-    public record Coordenada(float latitud, float longitud);
+    public record Coordenada(decimal latitud, decimal longitud);
 
      public class Ruta
     {
@@ -16,5 +16,10 @@
         public decimal latitud { get; set; }
         public decimal longitud { get; set; }  
         public string nombre_ruta { get; set; } = "";
+    }
+    public class RegistrarRutaDTO
+    {
+        public Ruta nuevaRuta { get; set; } = new Ruta();
+        public List<Coordenada> coordenadas { get; set; } = new List<Coordenada>();
     }
 }

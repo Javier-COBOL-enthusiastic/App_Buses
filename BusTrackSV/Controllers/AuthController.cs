@@ -12,7 +12,7 @@ namespace BusTrackSV.API
     public static class AuthController
     {
         private static string key = "equipovicturboequipovicturboequipovicturboequipovicturbo"; //te odio Ivan;        
-        public static void MapAuth(this WebApplication app)
+        public static void MapAuthController(this WebApplication app)
         {
             var group = app.MapGroup("/auth");
             group.MapPost("/register", (UsuarioRegistroDTO u, AuthService authService) =>
