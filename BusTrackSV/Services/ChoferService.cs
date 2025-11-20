@@ -13,14 +13,18 @@ public class ChoferService
         _busRepository = busRepository;
     }
 
-    public Chofer GetChofer(int userID, int busID)
+    public Chofer GetChofer(int userID, int choferID)
     {
-        var buses = _busRepository.GetBusesIDByUserID(userID);
-        if(buses.Contains(busID) == false)
+
+                
+        var choferes = _choferRepository.GetChoferIdByUserID(userID);        
+        if(choferes.Contains(choferID) == false)
         {
             throw new UserInvalidado();
         }
-        var chofer = _choferRepository.GetChoferByIdBus(busID);
+
+        var chofer = _choferRepository.GetChoferByID(choferID);
+
         if(chofer == null)
         {
             throw new NullValue();

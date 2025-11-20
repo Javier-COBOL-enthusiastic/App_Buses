@@ -37,10 +37,10 @@ namespace Data.Repositories
             // Luego, en un solo comando, insertamos desde la temporal a la real y capturamos los IDs.
             string bulkInsertCommand = @"
                 -- 1. Crear una tabla temporal para recibir los datos masivos
-                CREATE TABLE #CoordenadasTemp (
-                    latitud DECIMAL(10,7),
-                    longitud DECIMAL(10,7)
-                );
+                --CREATE TABLE #CoordenadasTemp (
+                    --latitud DECIMAL(10,7),
+                    --longitud DECIMAL(10,7)
+                --);
 
                 -- NOTA: La tabla temporal #CoordenadasTemp se llena desde C# usando SqlBulkCopy
 
@@ -60,6 +60,12 @@ namespace Data.Repositories
                 {
                     try
                     {
+                        using (SqlCommand cmdCreateTemp = new SqlCommand(
+                        "CREATE TABLE #CoordenadasTemp (latitud DECIMAL(10,7), longitud DECIMAL(10,7))",
+                        cnx, transaction))
+                        {
+                            cmdCreateTemp.ExecuteNonQuery();
+                        }
                         // A. Usar SqlBulkCopy para la inserción de datos a la tabla temporal
                         using (SqlBulkCopy bulkCopy = new SqlBulkCopy(cnx, SqlBulkCopyOptions.Default, transaction))
                         {
@@ -95,7 +101,7 @@ namespace Data.Repositories
                         // Revertir en caso de error
                         transaction.Rollback();
                         // Puedes relanzar la excepción o manejarla
-                        throw new Exception("Error al registrar coordenadas masivamente: " + ex.Message);
+                        throw new Exception("Error al registrar coordenadas masivamente: " + ex.Message);                        
                     }
                 }
             }

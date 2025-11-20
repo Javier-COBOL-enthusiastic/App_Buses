@@ -47,7 +47,7 @@ CREATE TABLE buses(
 id_bus INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 numero_placa VARCHAR(10) NOT NULL UNIQUE,
 estado_bus BIT NOT NULL, -- Solo acepta 0 o 1
-id_ruta INT NOT NULL,
+id_ruta INT,
 id_usuario INT NOT NULL,
 CONSTRAINT fk_buses_rutas FOREIGN KEY (id_ruta) REFERENCES rutas(id_ruta)
 ON DELETE CASCADE ON UPDATE CASCADE,
@@ -60,7 +60,7 @@ CREATE TABLE choferes(
 id_chofer INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 nombre_completo_chofer VARCHAR(100) NOT NULL,
 telefono_chofer char(9) NOT NULL UNIQUE,
-id_bus INT NOT NULL,
+id_bus INT NOT NULL UNIQUE,
 CONSTRAINT fk_choferes_bus FOREIGN KEY (id_bus) REFERENCES buses(id_bus)
 ON DELETE CASCADE ON UPDATE CASCADE,
 CONSTRAINT U_telefono_chofer UNIQUE(telefono_chofer)
@@ -125,10 +125,12 @@ CREATE PROCEDURE sp_registrar_rutas
 AS
 BEGIN
     SET NOCOUNT ON;
-
     BEGIN TRY
         INSERT INTO rutas(nombre_ruta, descripcion_ruta)
         VALUES (@nombre_ruta, @descripcion_ruta);
+
+        -- Devolver el id generado para que ExecuteScalar() lo reciba
+        SELECT CAST(SCOPE_IDENTITY() AS INT) AS id_ruta;
     END TRY
     BEGIN CATCH
         THROW;
@@ -259,6 +261,8 @@ ORDER BY b.numero_placa, pr.orden;
 -- choferes
 EXEC sp_registrar_choferes @nombre_completo = 'Enrique Rafael deL Ano', @telefono_chofer = '9999-0000', @id_bus=2; --  @id_bus = 1
 EXEC sp_registrar_choferes @nombre_completo = 'Javier Boliviano', @telefono_chofer = '9909-0000', @id_bus=4; --  @id_bus = 1
+EXEC sp_registrar_choferes @nombre_completo = 'Pruebencia', @telefono_chofer = '9900-0000', @id_bus=5; --  @id_bus = 1
+
 
 -- Procedimiento almacenado para validar el usuario y su contraseña
 CREATE PROCEDURE sp_validar_usuario_login
@@ -338,12 +342,21 @@ SELECT * FROM rutas;
 
 
 -- eliminar relación coordenadas y rutas
+
 CREATE PROCEDURE sp_eliminar_coord_rutas
-  @id_punto_ruta INT
+  @id_ruta INT
 AS
 BEGIN
-  DELETE FROM puntos_ruta
-  WHERE id_punto_ruta = @id_punto_ruta;
+  SET NOCOUNT ON;
+  BEGIN TRY
+    -- El OUTPUT devuelve los id_coordenada de las filas eliminadas
+    DELETE FROM puntos_ruta
+    OUTPUT deleted.id_coordenada
+    WHERE id_ruta = @id_ruta;
+  END TRY
+  BEGIN CATCH
+    THROW;
+  END CATCH 
 END;
 GO
 

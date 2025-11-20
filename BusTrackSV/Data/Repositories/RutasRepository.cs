@@ -15,7 +15,7 @@ namespace Data.Repositories
         }
 
         // 1. Método para Registrar una nueva Ruta (ahora devuelve el id generado)
-        public int RegistrarRuta(Ruta nuevaRuta)
+        public int RegistrarRuta(RutaDTO nuevaRuta)
         {
             string spName = "sp_registrar_rutas";
 
@@ -38,22 +38,67 @@ namespace Data.Repositories
         // 2. Método para Eliminar una Ruta
         public void EliminarRuta(int idRuta)
         {
-            string spName = "sp_eliminar_rutas";
+            string spName = "sp_eliminar_coord_rutas";
+            string sp2Name = "sp_eliminar_coordenadas";
+            string sp3Name = "sp_eliminar_rutas";
 
             using (SqlConnection cnx = _connector.CreateConnection())
             {
-                using (SqlCommand cmd = new SqlCommand(spName, cnx))
+                using (SqlTransaction tran = cnx.BeginTransaction())
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
+                    try
+                    {
+                        var deletedCoords = new List<int>();
+                        
+                        using (SqlCommand cmd = new SqlCommand(spName, cnx, tran))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.AddWithValue("@id_ruta", idRuta);
 
-                    cmd.Parameters.AddWithValue("@id_ruta", idRuta);
+                            using (SqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {                                    
+                                    deletedCoords.Add(reader.GetInt32(0));
+                                }
+                            }
+                        }
+                        
+                        if (deletedCoords.Count > 0)
+                        {
+                            using (SqlCommand cmdDelCoord = new SqlCommand(sp2Name, cnx, tran))
+                            {
+                                cmdDelCoord.CommandType = CommandType.StoredProcedure;
+                                var p = cmdDelCoord.Parameters.Add("@id_coordenada", SqlDbType.Int);
 
-                    cmd.ExecuteNonQuery();
+                                foreach (var idCoord in deletedCoords)
+                                {
+                                    p.Value = idCoord;
+                                    cmdDelCoord.ExecuteNonQuery();
+                                }
+                            }
+                        }
+
+                        using (SqlCommand cmdDelRuta = new SqlCommand(sp3Name, cnx, tran))
+                        {
+                            cmdDelRuta.CommandType = CommandType.StoredProcedure;
+                            cmdDelRuta.Parameters.AddWithValue("@id_ruta", idRuta);
+                            cmdDelRuta.ExecuteNonQuery();
+                        }
+
+                        tran.Commit();
+                    }
+                    catch(Exception ex)
+                    {
+                        tran.Rollback();
+                        throw new Exception("Error al eliminar la ruta y sus coordenadas asociadas: " + ex.Message);
+                    }
                 }
             }
         }
 
         // 3. Método para Actualizar la información de una Ruta
+        // Descontinuado por problemas
         public void ActualizarRuta(Ruta rutaAActualizar)
         {
             string spName = "sp_actualizar_ruta";
@@ -102,6 +147,60 @@ namespace Data.Repositories
                 }
             }
             return ruta;
+        }
+
+        public List<int> GetUsuariosIDporRuta(int idRuta)
+        {
+            List<int> usuariosID = new List<int>();
+
+            string sql = "SELECT id_usuario FROM user_rutas where id_ruta = @id_ruta";
+
+            using (SqlConnection cnx = _connector.CreateConnection())
+            {
+                using (SqlCommand cmd = new SqlCommand(sql, cnx))
+                {
+                    cmd.Parameters.AddWithValue("@id_ruta", idRuta);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            usuariosID.Add(reader.GetInt32(0));
+                        }
+                    }
+                }
+            }
+
+            return usuariosID;
+        }        
+        
+        public void VincularRutaUsuario(int idRuta, int idUsuario)
+        {
+            string sql = "sp_registrar_usuarios_rutas";
+            using (SqlConnection cnx = _connector.CreateConnection())
+            {
+                using (SqlCommand cmd = new SqlCommand(sql, cnx))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@id_ruta", idRuta);
+                    cmd.Parameters.AddWithValue("@id_usuario", idUsuario);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public void DesvincularRutaUsuario(int idRuta, int idUsuario)
+        {
+            string sql = "DELETE FROM user_rutas WHERE id_ruta = @id_ruta AND id_usuario = @id_usuario";
+            using (SqlConnection cnx = _connector.CreateConnection())
+            {
+                using (SqlCommand cmd = new SqlCommand(sql, cnx))
+                {
+                    cmd.Parameters.AddWithValue("@id_ruta", idRuta);
+                    cmd.Parameters.AddWithValue("@id_usuario", idUsuario);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

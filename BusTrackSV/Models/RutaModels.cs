@@ -9,6 +9,11 @@
         public string descripcion_ruta { get; set; } = "";
     }
 
+    public class RutaDTO
+    {
+        public string nombre_ruta { get; set; } = "";
+        public string descripcion_ruta { get; set; } = "";
+    }
 
     public class PuntoRutaDetalle
     {
@@ -19,7 +24,7 @@
     }
     public class RegistrarRutaDTO
     {
-        public Ruta nuevaRuta { get; set; } = new Ruta();
+        public RutaDTO nuevaRuta { get; set; } = new RutaDTO();
         public List<Coordenada> coordenadas { get; set; } = new List<Coordenada>();
     }
 }
