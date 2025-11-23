@@ -77,10 +77,10 @@ namespace Data.Repositories
         public UsuarioValidado? Login(string nombreUsuario, string password)
         {
             UsuarioValidado? usuario = null;       
+            string spName = "sp_validar_usuario_login";
 
-            string spName = "sp_validar_usuario_login";            
-            using (SqlConnection cnx = _connector.CreateConnection())
-            {
+
+                using (SqlConnection cnx = _connector.CreateConnection())
                 using (SqlCommand cmd = new SqlCommand(spName, cnx))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -98,14 +98,9 @@ namespace Data.Repositories
                                 correo = reader.GetString(2),
                                 usuario = reader.GetString(3)
                             };
-                        }
-                        else if (!reader.Read())
-                        {
-                            throw new Exception("Usuario no registrado");
-                        }                           
+                        }                        
                     }
                 }
-            }
             return usuario;           
         }
     }

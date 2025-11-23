@@ -263,7 +263,6 @@ EXEC sp_registrar_choferes @nombre_completo = 'Enrique Rafael deL Ano', @telefon
 EXEC sp_registrar_choferes @nombre_completo = 'Javier Boliviano', @telefono_chofer = '9909-0000', @id_bus=4; --  @id_bus = 1
 EXEC sp_registrar_choferes @nombre_completo = 'Pruebencia', @telefono_chofer = '9900-0000', @id_bus=5; --  @id_bus = 1
 
-
 -- Procedimiento almacenado para validar el usuario y su contraseña
 CREATE PROCEDURE sp_validar_usuario_login
     @usuario NVARCHAR(100),
@@ -281,6 +280,14 @@ BEGIN
         
     -- Convertir el hash de entrada a VARCHAR para compararlo con el de la DB
     DECLARE @hash_comparar VARCHAR(100) = CONVERT(VARCHAR(100), @hash_entrada, 2);
+
+    -- Agregar mensajes de error personalizados
+
+    IF NOT EXISTS (SELECT 1 FROM usuarios WHERE usuario = @usuario AND contraseña_usuario = @hash_comparar)
+    BEGIN
+      -- excepción personalizada (código >= 50000 ó >= 51000)
+      THROW 51000, 'Credenciales inválidas.', 1;
+    END
 
     -- Seleccionar el usuario si el nombre de usuario y el hash coinciden
     SELECT 

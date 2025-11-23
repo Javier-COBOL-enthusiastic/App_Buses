@@ -6,23 +6,22 @@ using BusTrackSV.Models;
 namespace BusTrackSV.API;
 public static class BusController
 {
-	
-	public static void MapBusController(this WebApplication app)
+    
+    public static void MapBusController(this WebApplication app)
     {
-		var group = app.MapGroup("/buses");
+        var group = app.MapGroup("/buses");
         group.RequireAuthorization(); 
         
-		group.MapGet("/ids", (HttpContext context, BusService busService)  =>
+        group.MapGet("/ids", async (HttpContext context, BusService busService)  =>
         {
             var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
                 return Results.Unauthorized();            
 
-    
             var userId = userIdClaim.Value;
             try
             {
-                var res = busService.getIds(int.Parse(userId));                
+                var res = await Task.Run(() => busService.getIds(int.Parse(userId)));                
                 return Results.Json(res);
             }
             catch(UserInvalidado ex)
@@ -34,11 +33,12 @@ public static class BusController
                 return Results.Problem(ex.Message);
             }                        
         }); 
-        group.MapGet("/get/{id:int}", (int id, BusService busService) =>
+
+        group.MapGet("/get/{id:int}", async (int id, BusService busService) =>
         {
             try
             {
-                var res = busService.getBus(id);
+                var res = await Task.Run(() => busService.getBus(id));
                 return Results.Json(res);
             }
             catch(NullValue)
@@ -51,17 +51,16 @@ public static class BusController
             }
         });
 
-        group.MapPost("/add", (HttpContext ctx, BusRegistroDTO nbus, BusService busService) =>
+        group.MapPost("/add", async (HttpContext ctx, BusRegistroDTO nbus, BusService busService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
                 return Results.Unauthorized();
 
-
             var userId = userIdClaim.Value;
             try
             {
-                busService.AddBus(int.Parse(userId), nbus);
+                await Task.Run(() => busService.AddBus(int.Parse(userId), nbus));
                 return Results.Accepted();
             }
             catch(UserInvalidado ex)
@@ -82,7 +81,7 @@ public static class BusController
             }
         });
 
-        group.MapPut("/update", (HttpContext ctx, Bus bus, BusService busService) =>
+        group.MapPut("/update", async (HttpContext ctx, Bus bus, BusService busService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -91,7 +90,7 @@ public static class BusController
 
             try
             {
-                busService.PutBus(int.Parse(userId), bus);
+                await Task.Run(() => busService.PutBus(int.Parse(userId), bus));
                 return Results.Accepted();
             }
             catch(UserInvalidado ex)
@@ -110,7 +109,7 @@ public static class BusController
                 return Results.Problem(ex.Message);
             }
         });  
-        group.MapDelete("/delete/{id:int}", (HttpContext ctx, int id, BusService busService) =>
+        group.MapDelete("/delete/{id:int}", async (HttpContext ctx, int id, BusService busService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
@@ -119,7 +118,7 @@ public static class BusController
 
             try
             {
-                busService.DeleteBus(int.Parse(userId), id);
+                await Task.Run(() => busService.DeleteBus(int.Parse(userId), id));
                 return Results.Accepted();
             }
             catch(UserInvalidado ex)

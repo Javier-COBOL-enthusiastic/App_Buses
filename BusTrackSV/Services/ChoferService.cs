@@ -13,6 +13,23 @@ public class ChoferService
         _busRepository = busRepository;
     }
 
+    public List<Chofer> Get(int userID)
+    {
+        var choferesIDs = _choferRepository.GetChoferIdByUserID(userID);
+        var choferes = new List<Chofer>();
+
+        foreach(var id in choferesIDs)
+        {
+            var chofer = _choferRepository.GetChoferByID(id);
+            if(chofer != null)
+            {
+                choferes.Add(chofer);
+            }
+        }
+
+        return choferes;
+    }
+
     public Chofer GetChofer(int userID, int choferID)
     {
 

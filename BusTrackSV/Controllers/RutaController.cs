@@ -1,8 +1,6 @@
 using BusTrackSV.Service;
 using Microsoft.AspNetCore.Authorization;
-using Data.Repositories;
 using BusTrackSV.Models;
-
 
 namespace BusTrackSV.API;
 
@@ -13,115 +11,91 @@ public static class RutaController
         var group = app.MapGroup("/ruta");
         group.RequireAuthorization();
 
-        //Funcion para registrar ruta ya existente, es decir para crear la relación con el usuario y ruta
-        
-        group.MapPost("/registrar/{idRuta:int}", (int idRuta, HttpContext ctx,RutaService rutaService) =>
+        group.MapPost("/registrar/{idRuta:int}", async (int idRuta, HttpContext ctx, RutaService rutaService) =>
         {
+            var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null) return Results.Unauthorized();
+
             try
             {
-                var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
-                if (userIdClaim == null)
-                    return Results.Unauthorized();
-
-                var userId = userIdClaim.Value;
-
-                rutaService.RegistrarRutaExistente(int.Parse(userId), idRuta);
+                await Task.Run(() => rutaService.RegistrarRutaExistente(int.Parse(userIdClaim.Value), idRuta));
                 return Results.Ok(new { message = "Ruta vinculada exitosamente." });
             }
-            catch (Exception ex) when (ex is NullValue || ex is CamposRequeridosException)
+            catch (UserInvalidado) { return Results.Unauthorized(); }
+            catch (UnauthorizedAccessException) { return Results.Forbid(); }
+            catch (NullValue ex)
             {
-                return Results.BadRequest(new { message = ex.Message });
+                // si es ID inválido -> 400, si es "no existe" -> 404
+                return ex.Message?.ToLower().Contains("no existe") == true
+                    ? Results.NotFound(new { message = ex.Message })
+                    : Results.BadRequest(new { message = ex.Message });
             }
-            catch (Exception ex)
-            {
-                return Results.Problem(ex.Message);
-            }
-        });
-        
-
-        group.MapPost("/registrar", (RegistrarRutaDTO registrarRutaDTO, HttpContext ctx,RutaService rutaService) =>
-        {
-            try
-            {
-                var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
-                if (userIdClaim == null)
-                    return Results.Unauthorized();
-
-                var userId = userIdClaim.Value;
-
-                int idRuta = rutaService.RegistrarRuta(int.Parse(userId), registrarRutaDTO.nuevaRuta, registrarRutaDTO.coordenadas);
-                return Results.Ok(new { message = "Ruta registrada exitosamente.", id_ruta = idRuta });
-            }
-            catch (Exception ex) when (ex is NullValue || ex is CamposRequeridosException)
-            {
-                return Results.BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(ex.Message);
-            }
+            catch (CamposRequeridosException ex) { return Results.BadRequest(new { message = ex.Message }); }
+            catch (Exception ex) { return Results.Problem(ex.Message); }
         });
 
-        group.MapGet("/{idRuta:int}", (int idRuta, HttpContext ctx, RutaService rutaService) =>
+        group.MapPost("/registrar", async (RegistrarRutaDTO dto, HttpContext ctx, RutaService rutaService) =>
         {
+            var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null) return Results.Unauthorized();
+
             try
             {
-                var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
-                if (userIdClaim == null)
-                    return Results.Unauthorized();
+                var idRuta = await Task.Run(() => rutaService.RegistrarRuta(int.Parse(userIdClaim.Value), dto.nuevaRuta, dto.coordenadas));
+                return Results.Created($"/ruta/{idRuta}", new { id_ruta = idRuta });
+            }
+            catch (UserInvalidado) { return Results.Unauthorized(); }
+            catch (CamposRequeridosException ex) { return Results.BadRequest(new { message = ex.Message }); }
+            catch (NullValue ex) { return Results.BadRequest(new { message = ex.Message }); }
+            catch (Exception ex) { return Results.Problem(ex.Message); }
+        });
 
-                var userId = userIdClaim.Value;
-                Ruta ruta = rutaService.ObtenerRutaPorId(int.Parse(userId), idRuta);
+        group.MapGet("/{idRuta:int}", async (int idRuta, HttpContext ctx, RutaService rutaService) =>
+        {
+            var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null) return Results.Unauthorized();
+
+            try
+            {
+                var ruta = await Task.Run(() => rutaService.ObtenerRutaPorId(int.Parse(userIdClaim.Value), idRuta));
                 return Results.Ok(ruta);
             }
-            catch (Exception ex) when (ex is NullValue)
-            {
-                return Results.NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(ex.Message);
-            }
+            catch (UserInvalidado) { return Results.Unauthorized(); }
+            catch (UnauthorizedAccessException) { return Results.Forbid(); }
+            catch (NullValue ex) { return Results.NotFound(new { message = ex.Message }); }
+            catch (Exception ex) { return Results.Problem(ex.Message); }
         });
 
-        group.MapGet("/coordenadas/{idRuta:int}", (int idRuta, HttpContext ctx, RutaService rutaService) =>
+        group.MapGet("/coordenadas/{idRuta:int}", async (int idRuta, HttpContext ctx, RutaService rutaService) =>
         {
+            var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null) return Results.Unauthorized();
+
             try
             {
-                var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
-                if (userIdClaim == null)
-                    return Results.Unauthorized();
-
-                var userId = userIdClaim.Value;
-                var coordenadas = rutaService.ObtenerCoordenadasPorRuta(int.Parse(userId), idRuta);
-                return Results.Ok(coordenadas);
+                var coords = await Task.Run(() => rutaService.ObtenerCoordenadasPorRuta(int.Parse(userIdClaim.Value), idRuta));
+                return Results.Ok(coords);
             }
-            catch (Exception ex) when (ex is NullValue)
-            {
-                return Results.NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(ex.Message);
-            }
+            catch (UserInvalidado) { return Results.Unauthorized(); }
+            catch (UnauthorizedAccessException) { return Results.Forbid(); }
+            catch (NullValue ex) { return Results.NotFound(new { message = ex.Message }); }
+            catch (Exception ex) { return Results.Problem(ex.Message); }
         });
 
-        group.MapDelete("/eliminar/{idRuta:int}", (int idRuta, HttpContext ctx, RutaService rutaService) =>
+        group.MapDelete("/eliminar/{idRuta:int}", async (int idRuta, HttpContext ctx, RutaService rutaService) =>
         {
+            var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null) return Results.Unauthorized();
+
             try
             {
-                var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
-                if (userIdClaim == null)
-                    return Results.Unauthorized();
-
-                var userId = userIdClaim.Value;                
-                rutaService.EliminarRuta(int.Parse(userId), idRuta);
-                return Results.Ok(new { message = "Ruta eliminada exitosamente." });
+                await Task.Run(() => rutaService.EliminarRuta(int.Parse(userIdClaim.Value), idRuta));
+                return Results.NoContent();
             }
-            catch(Exception ex)
-            {
-                return Results.Problem(ex.Message);
-            }
+            catch (UserInvalidado) { return Results.Unauthorized(); }
+            catch (UnauthorizedAccessException) { return Results.Forbid(); }
+            catch (NullValue ex) { return Results.NotFound(new { message = ex.Message }); }
+            catch (Exception ex) { return Results.Problem(ex.Message); }
         });
     }
 }

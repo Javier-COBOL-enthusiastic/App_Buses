@@ -42,7 +42,7 @@ export const api = {
     let id = 1;
     return req("/auth/register","POST",{id, name,email,username,password});
   },
-  async login(email,password){
+  async login(usuario,password){
     if(USE_MOCK){
       const users = loadUsers();
       const u = users.find(x=> x.email.toLowerCase()===email.toLowerCase());
@@ -52,7 +52,7 @@ export const api = {
       const rand = crypto.getRandomValues(new Uint32Array(1))[0].toString(16);
       return { token:"mock-"+rand, user:{id:u.id,name:u.name,email:u.email,username:u.username,profile:u.profile||{}} };
     }
-    return req("/auth/login","POST",{email,password});
+    return req("/auth/login","POST",{usuario,password});
   },
   mockUserExists(email){ return loadUsers().some(u=>u.email.toLowerCase()===email.toLowerCase()); },
   issueResetCode(email){
