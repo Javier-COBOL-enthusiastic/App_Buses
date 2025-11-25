@@ -107,23 +107,6 @@ GO
 
 SELECT * FROM usuarios
 
--- procedimiento almacenado para la tabla coordenadas
-CREATE PROCEDURE sp_registrar_coordenadas
-    @latitud DECIMAL(10,7),
-    @longitud DECIMAL(10,7)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        INSERT INTO coordenadas(latitud, longitud)
-        VALUES (@latitud, @longitud);
-    END TRY
-    BEGIN CATCH
-        THROW;
-    END CATCH
-END;
-GO
 
 -- procedimiento almacenado para la tabla rutas
 CREATE PROCEDURE sp_registrar_rutas
@@ -165,7 +148,7 @@ GO
 -- procedimiento almacenado para la tabla buses
 CREATE PROCEDURE sp_registrar_buses
     @numero_placa VARCHAR(10),
-    @estado_bus INT,
+    @estado_bus BIT,
     @id_ruta INT,
     @id_usuario INT
 AS
@@ -222,44 +205,6 @@ EXEC sp_registrar_rutas
     @nombre_ruta = 'Ruta 101-B',
     @descripcion_ruta = 'Ruta que va del Centro hasta la casa de Enrique';
 
--- Insertar una coordenada de prueba
-EXEC sp_registrar_coordenadas 
-    @latitud = 13.6990000,
-    @longitud = -89.1910000;
-
--- Insertar otra coordenada
-EXEC sp_registrar_coordenadas 
-    @latitud = 13.7005000,
-    @longitud = -89.1902000;
-
-EXEC sp_registrar_coordenadas @latitud=13.6991000, @longitud=-89.1911000;
-EXEC sp_registrar_coordenadas @latitud=13.6992000, @longitud=-89.1912000;
-EXEC sp_registrar_coordenadas @latitud=13.6993000, @longitud=-89.1913000;
-EXEC sp_registrar_coordenadas @latitud=13.6994000, @longitud=-89.1914000;
-EXEC sp_registrar_coordenadas @latitud=13.6995000, @longitud=-89.1915000;
-EXEC sp_registrar_coordenadas @latitud=13.6996000, @longitud=-89.1916000;
-EXEC sp_registrar_coordenadas @latitud=13.6997000, @longitud=-89.1917000;
-EXEC sp_registrar_coordenadas @latitud=13.6998000, @longitud=-89.1918000;
-EXEC sp_registrar_coordenadas @latitud=13.6999000, @longitud=-89.1919000;
-EXEC sp_registrar_coordenadas @latitud=13.7000000, @longitud=-89.1920000;
-EXEC sp_registrar_coordenadas @latitud=13.7001000, @longitud=-89.1921000;
-EXEC sp_registrar_coordenadas @latitud=13.7002000, @longitud=-89.1922000;
-EXEC sp_registrar_coordenadas @latitud=13.7003000, @longitud=-89.1923000;
-EXEC sp_registrar_coordenadas @latitud=13.7004000, @longitud=-89.1924000;
-EXEC sp_registrar_coordenadas @latitud=13.7005000, @longitud=-89.1925000;
-
--- Ruta 101
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=1, @orden=1;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=2, @orden=2;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=3, @orden=3;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=4, @orden=4;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=5, @orden=5;
-
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=6, @orden=6;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=7, @orden=7;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=8, @orden=8;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=9, @orden=9;
-EXEC sp_registrar_puntos_ruta @id_ruta=1, @id_coordenada=10, @orden=10;
 
 -- consulta para ver las coordenadas de una ruta, ordenada
 SELECT id_punto_ruta, longitud, latitud, nombre_ruta from puntos_ruta pr
@@ -267,9 +212,6 @@ INNER JOIN rutas r on pr.id_ruta = r.id_ruta
 INNER JOIN coordenadas c on pr.id_coordenada = c.id_coordenada
 ORDER BY pr.orden ASC
 
--- buses
-EXEC sp_registrar_buses @numero_placa='P000 101', @estado_bus = 1, @id_ruta=1, @id_usuario=2; -- @id_usuario=1;
-EXEC sp_registrar_buses @numero_placa='P 9 1A2', @estado_bus = 1, @id_ruta=2, @id_usuario=2; -- @id_usuario=1;
 
 
 -- consulta para que aparezca una sola vez la placa si aparece en varios registros
@@ -451,7 +393,7 @@ SELECT * FROM usuarios;
 CREATE PROCEDURE sp_actualizar_buses
     @id_bus INT,
     @numero_placa VARCHAR(10),
-    @estado_bus INT,
+    @estado_bus BIT,
     @id_ruta INT,
     @id_usuario INT
 AS
