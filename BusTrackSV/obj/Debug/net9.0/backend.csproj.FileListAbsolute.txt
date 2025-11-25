@@ -77,3 +77,7 @@ C:\Users\works\OneDrive\Escritorio\App_Buses\BusTrackSV\obj\Debug\net9.0\refint\
 C:\Users\works\OneDrive\Escritorio\App_Buses\BusTrackSV\obj\Debug\net9.0\backend.pdb
 C:\Users\works\OneDrive\Escritorio\App_Buses\BusTrackSV\obj\Debug\net9.0\backend.genruntimeconfig.cache
 C:\Users\works\OneDrive\Escritorio\App_Buses\BusTrackSV\obj\Debug\net9.0\ref\backend.dll
+<<<<<<< HEAD
+=======
+C:\Users\works\OneDrive\Escritorio\App_Buses\BusTrackSV\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+>>>>>>> Javier

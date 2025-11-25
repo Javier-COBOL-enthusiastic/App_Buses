@@ -7,10 +7,13 @@ namespace ConexionBD
     public class DbConnector
     {
         private readonly string _connectionString;
+
         public DbConnector(string connectionString)
         {
-            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            _connectionString = connectionString 
+                ?? throw new ArgumentNullException(nameof(connectionString));
         }
+
         public SqlConnection CreateConnection()
         {
             try
