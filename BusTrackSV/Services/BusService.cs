@@ -1,17 +1,10 @@
-<<<<<<< HEAD
-﻿using Modelos = BusTrackSV.Models;
-=======
-﻿using BusTrackSV.Models;
+using BusTrackSV.Models;
 using Data.Repositories;
 
->>>>>>> Javier
 namespace BusTrackSV.Service;
 
 public class BusService
 {
-<<<<<<< HEAD
-	
-=======
     private readonly BusRepository _busRepository;
     public BusService(BusRepository busRepository)
     {
@@ -105,5 +98,4 @@ public class BusService
 
         _busRepository.EliminarBus(busID);
     }
->>>>>>> Javier
 }

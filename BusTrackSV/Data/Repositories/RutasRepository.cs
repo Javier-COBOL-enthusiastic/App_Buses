@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-using System.Collections.Generic;
-=======
->>>>>>> Javier
 using System.Data;
 using Microsoft.Data.SqlClient;
 using ConexionBD;
@@ -18,13 +14,8 @@ namespace Data.Repositories
             _connector = connector;
         }
 
-<<<<<<< HEAD
-        // 1. Método para Registrar una nueva Ruta
-        public void RegistrarRuta(Ruta nuevaRuta)
-=======
         // 1. Método para Registrar una nueva Ruta (ahora devuelve el id generado)
         public int RegistrarRuta(RutaDTO nuevaRuta)
->>>>>>> Javier
         {
             string spName = "sp_registrar_rutas";
 
@@ -33,12 +24,6 @@ namespace Data.Repositories
                 using (SqlCommand cmd = new SqlCommand(spName, cnx))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-<<<<<<< HEAD
-                    
-                    cmd.Parameters.AddWithValue("@nombre_ruta", nuevaRuta.nombre_ruta);
-                    cmd.Parameters.AddWithValue("@descripcion_ruta", nuevaRuta.descripcion_ruta);
-                    
-=======
 
                     cmd.Parameters.AddWithValue("@nombre_ruta", nuevaRuta.nombre_ruta);
                     cmd.Parameters.AddWithValue("@descripcion_ruta", nuevaRuta.descripcion_ruta);
@@ -128,38 +113,22 @@ namespace Data.Repositories
                     cmd.Parameters.AddWithValue("@nombre_ruta", rutaAActualizar.nombre_ruta);
                     cmd.Parameters.AddWithValue("@descripcion_ruta", rutaAActualizar.descripcion_ruta);
 
->>>>>>> Javier
                     cmd.ExecuteNonQuery();
                 }
             }
         }
 
-<<<<<<< HEAD
-        // 2. Método para Obtener la información de todas las Rutas
-        public List<Ruta> GetAllRutas()
-        {
-            var rutas = new List<Ruta>();
-            string sql = "SELECT id_ruta, nombre_ruta, descripcion_ruta FROM rutas";
-=======
         // 4. Método para obtener la información de una ruta por su id
         public Ruta? GetRutaById(int idRuta)
         {
             Ruta? ruta=null;
 
             string sql="SELECT id_ruta, nombre_ruta, descripcion_ruta FROM rutas WHERE id_ruta=@id_ruta";
->>>>>>> Javier
 
             using (SqlConnection cnx = _connector.CreateConnection())
             {
                 using (SqlCommand cmd = new SqlCommand(sql, cnx))
                 {
-<<<<<<< HEAD
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            rutas.Add(new Ruta
-=======
                     // Añadir el parámetro para el ID de la Ruta
                     cmd.Parameters.AddWithValue("@id_ruta", idRuta);
 
@@ -168,23 +137,15 @@ namespace Data.Repositories
                         if (reader.Read())
                         {
                             ruta = new Ruta
->>>>>>> Javier
                             {
                                 id_ruta = reader.GetInt32(0),
                                 nombre_ruta = reader.GetString(1),
                                 descripcion_ruta = reader.GetString(2)
-<<<<<<< HEAD
-                            });
-=======
                             };
->>>>>>> Javier
                         }
                     }
                 }
             }
-<<<<<<< HEAD
-            return rutas;
-=======
             return ruta;
         }
 
@@ -240,7 +201,6 @@ namespace Data.Repositories
                     cmd.ExecuteNonQuery();
                 }
             }
->>>>>>> Javier
         }
     }
 }

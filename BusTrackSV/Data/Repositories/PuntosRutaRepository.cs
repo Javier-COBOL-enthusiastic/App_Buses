@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-using System.Collections.Generic;
-=======
->>>>>>> Javier
 using System.Data;
 using Microsoft.Data.SqlClient;
 using ConexionBD;
@@ -18,20 +14,6 @@ namespace Data.Repositories
             _connector = connector;
         }
 
-<<<<<<< HEAD
-        // Método para obtener Puntos de Ruta por ID de Ruta
-        public List<PuntoRuta> GetPuntosByRutaId(int idRuta)
-        {
-            var puntos = new List<PuntoRuta>();
-            string sql = "SELECT id_punto_ruta, id_ruta, id_coordenada, orden FROM puntos_ruta WHERE id_ruta = @id_ruta ORDER BY orden ASC";
-
-            using (SqlConnection cnx = _connector.CreateConnection())
-            {
-                using (SqlCommand cmd = new SqlCommand(sql, cnx))
-                {
-                    cmd.Parameters.AddWithValue("@id_ruta", idRuta);
-                    
-=======
         // 1. Método para Agregar los puntos de la Ruta
         public void RegistrarPuntosRuta(int idRuta, List<int> idsCoordenadas)
         {
@@ -111,29 +93,15 @@ namespace Data.Repositories
                     
                     cmd.Parameters.AddWithValue("@id_ruta", idRuta);
 
->>>>>>> Javier
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-<<<<<<< HEAD
-                            puntos.Add(new PuntoRuta
-                            {
-                                id_punto_ruta = reader.GetInt32(0),
-                                id_ruta = reader.GetInt32(1),
-                                id_coordenada = reader.GetInt32(2),
-                                orden = reader.GetInt32(3)
-                            });
-=======
                             idsCoordenadas.Add(reader.GetInt32(0)); 
->>>>>>> Javier
                         }
                     }
                 }
             }
-<<<<<<< HEAD
-            return puntos;
-=======
 
             return idsCoordenadas;
         }
@@ -183,7 +151,6 @@ namespace Data.Repositories
             }
             
             return puntosRuta;
->>>>>>> Javier
         }
     }
 }

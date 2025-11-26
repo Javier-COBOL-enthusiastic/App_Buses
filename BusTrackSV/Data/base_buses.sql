@@ -47,11 +47,7 @@ CREATE TABLE buses(
 id_bus INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 numero_placa VARCHAR(10) NOT NULL UNIQUE,
 estado_bus BIT NOT NULL, -- Solo acepta 0 o 1
-<<<<<<< HEAD
-id_ruta INT NOT NULL,
-=======
 id_ruta INT,
->>>>>>> Javier
 id_usuario INT NOT NULL,
 CONSTRAINT fk_buses_rutas FOREIGN KEY (id_ruta) REFERENCES rutas(id_ruta)
 ON DELETE CASCADE ON UPDATE CASCADE,
@@ -64,18 +60,12 @@ CREATE TABLE choferes(
 id_chofer INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 nombre_completo_chofer VARCHAR(100) NOT NULL,
 telefono_chofer char(9) NOT NULL UNIQUE,
-<<<<<<< HEAD
-id_bus INT NOT NULL,
-=======
 id_bus INT NOT NULL UNIQUE,
->>>>>>> Javier
 CONSTRAINT fk_choferes_bus FOREIGN KEY (id_bus) REFERENCES buses(id_bus)
 ON DELETE CASCADE ON UPDATE CASCADE,
 CONSTRAINT U_telefono_chofer UNIQUE(telefono_chofer)
 );
 
-<<<<<<< HEAD
-=======
 CREATE TABLE user_rutas (
   id_usuario INT NOT NULL,
   id_ruta INT NOT NULL,
@@ -86,7 +76,6 @@ CREATE TABLE user_rutas (
 -- luego, validar con:
 -- SELECT 1 FROM user_rutas WHERE id_usuario=@userId AND id_ruta=@routeId
 
->>>>>>> Javier
 -- es mejor usar procedimientos almacenado, es más seguro y es más dificil de vulnerar que dejar el muy puro "insert-deleté-update"
 
 -- procedimiento almacenado para guardar usuarios
@@ -136,19 +125,12 @@ CREATE PROCEDURE sp_registrar_rutas
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
-
-    BEGIN TRY
-        INSERT INTO rutas(nombre_ruta, descripcion_ruta)
-        VALUES (@nombre_ruta, @descripcion_ruta);
-=======
     BEGIN TRY
         INSERT INTO rutas(nombre_ruta, descripcion_ruta)
         VALUES (@nombre_ruta, @descripcion_ruta);
 
         -- Devolver el id generado para que ExecuteScalar() lo reciba
         SELECT CAST(SCOPE_IDENTITY() AS INT) AS id_ruta;
->>>>>>> Javier
     END TRY
     BEGIN CATCH
         THROW;
@@ -175,8 +157,6 @@ BEGIN
 END;
 GO
 
-<<<<<<< HEAD
-=======
 -- procedimiento almacenado para la tabla usuarios_rutas
 
 CREATE PROCEDURE sp_registrar_usuarios_rutas
@@ -196,7 +176,6 @@ BEGIN
 END;
 GO
 
->>>>>>> Javier
 -- procedimiento almacenado para la tabla buses
 CREATE PROCEDURE sp_registrar_buses
     @numero_placa VARCHAR(10),
@@ -280,14 +259,9 @@ INNER JOIN coordenadas c ON pr.id_coordenada = c.id_coordenada
 ORDER BY b.numero_placa, pr.orden;
 
 -- choferes
-<<<<<<< HEAD
-EXEC sp_registrar_choferes @nombre_completo = 'Enrique Rafael deL Ano', @telefono_chofer = '9999-0000', @id_bus=5; --  @id_bus = 1
-EXEC sp_registrar_choferes @nombre_completo = 'Javier Boliviano', @telefono_chofer = '9909-0000', @id_bus=4; --  @id_bus = 1
-=======
 EXEC sp_registrar_choferes @nombre_completo = 'Enrique Rafael deL Ano', @telefono_chofer = '9999-0000', @id_bus=2; --  @id_bus = 1
 EXEC sp_registrar_choferes @nombre_completo = 'Javier Boliviano', @telefono_chofer = '9909-0000', @id_bus=4; --  @id_bus = 1
 EXEC sp_registrar_choferes @nombre_completo = 'Pruebencia', @telefono_chofer = '9900-0000', @id_bus=5; --  @id_bus = 1
->>>>>>> Javier
 
 -- Procedimiento almacenado para validar el usuario y su contraseña
 CREATE PROCEDURE sp_validar_usuario_login
@@ -307,8 +281,6 @@ BEGIN
     -- Convertir el hash de entrada a VARCHAR para compararlo con el de la DB
     DECLARE @hash_comparar VARCHAR(100) = CONVERT(VARCHAR(100), @hash_entrada, 2);
 
-<<<<<<< HEAD
-=======
     -- Agregar mensajes de error personalizados
 
     IF NOT EXISTS (SELECT 1 FROM usuarios WHERE usuario = @usuario AND contraseña_usuario = @hash_comparar)
@@ -317,7 +289,6 @@ BEGIN
       THROW 51000, 'Credenciales inválidas.', 1;
     END
 
->>>>>>> Javier
     -- Seleccionar el usuario si el nombre de usuario y el hash coinciden
     SELECT 
         id_usuario, 
@@ -378,14 +349,6 @@ SELECT * FROM rutas;
 
 
 -- eliminar relación coordenadas y rutas
-<<<<<<< HEAD
-CREATE PROCEDURE sp_eliminar_coord_rutas
-  @id_punto_ruta INT
-AS
-BEGIN
-  DELETE FROM puntos_ruta
-  WHERE id_punto_ruta = @id_punto_ruta;
-=======
 
 CREATE PROCEDURE sp_eliminar_coord_rutas
   @id_ruta INT
@@ -401,7 +364,6 @@ BEGIN
   BEGIN CATCH
     THROW;
   END CATCH 
->>>>>>> Javier
 END;
 GO
 
@@ -422,8 +384,6 @@ GO
 SELECT * FROM buses;
 -- EXEC sp_eliminar_buses @id_bus = 1;
 
-<<<<<<< HEAD
-=======
 -- elminar relación usuarios y rutas
 CREATE PROCEDURE sp_eliminar_usuarios_rutas
   @id_usuario INT,
@@ -435,7 +395,6 @@ BEGIN
 END;
 GO
 
->>>>>>> Javier
 
 -- eliminar choferes
 CREATE PROCEDURE sp_eliminar_choferes
@@ -587,8 +546,6 @@ AS
 END;
 GO
 
-<<<<<<< HEAD
-=======
 -- Actualizar usuarios_rutas
 CREATE PROCEDURE sp_actualizar_usuarios_rutas
     @id_usuario INT,
@@ -606,7 +563,6 @@ BEGIN
 END;
 GO
 
->>>>>>> Javier
 SELECT * FROM puntos_ruta;
 -- EXEC sp_actualizar_puntos_ruta @id_punto_ruta = 1, @id_ruta = 2, @id_coordenada = 5;
 
