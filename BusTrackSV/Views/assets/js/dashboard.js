@@ -80,7 +80,7 @@ function renderRows(routes) {
 
 async function loadRoutes() {
   try {
-    const routes = await api.getRoutes(); // GET /buses/ids
+    const routes = await api.getRouteDetail(); // GET /buses/ids
     renderRows(routes || []);
   } catch (err) {
     console.error(err);

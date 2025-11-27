@@ -18,6 +18,15 @@ public class RutaService
         _busRepository = busRepository;
     }
 
+    public List<int> ObtenerRutasIDPorUsuario(int idUsuario)
+    {
+        if(idUsuario <= 0)
+            throw new UserInvalidado();
+
+        var res = _rutasRepository.GetRutasIDByUsuarioID(idUsuario);
+        return res;
+    }
+
     public void RegistrarRutaExistente(int idUsuario, int idRuta)
     {
         if(idUsuario <= 0)

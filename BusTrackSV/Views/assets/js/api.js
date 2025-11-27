@@ -181,7 +181,7 @@ export const api = {
         inactive: r.inactive || 0,
       }));
     }
-    return req("/buses/ids", "GET");
+    return req("/ruta/ids", "GET");
   },
 
   // POST /ruta/registrar -> RegistrarRutaDTO { nuevaRuta, coordenadas[] }

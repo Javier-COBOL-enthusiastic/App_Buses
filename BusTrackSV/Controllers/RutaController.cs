@@ -11,6 +11,20 @@ public static class RutaController
         var group = app.MapGroup("/ruta");
         group.RequireAuthorization();
 
+        group.MapGet("/ids", async (HttpContext ctx, RutaService rutaService) =>
+        {
+            var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null) return Results.Unauthorized();
+
+            try
+            {
+                var res = await Task.Run(() => rutaService.ObtenerRutasIDPorUsuario(int.Parse(userIdClaim.Value)));
+                return Results.Ok(res);
+            }
+            catch (UserInvalidado) { return Results.Unauthorized(); }
+            catch (Exception ex) { return Results.Problem(ex.Message); }
+        });
+
         group.MapPost("/registrar/{idRuta:int}", async (int idRuta, HttpContext ctx, RutaService rutaService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");

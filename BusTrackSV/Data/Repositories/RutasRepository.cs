@@ -148,7 +148,31 @@ namespace Data.Repositories
             }
             return ruta;
         }
+        public List<int> GetRutasIDByUsuarioID(int idUsuario)
+        {
+            List<int> rutasID = new List<int>();
 
+            string sql = "SELECT id_ruta FROM user_rutas where id_usuario = @id_usuario";
+
+            using (SqlConnection cnx = _connector.CreateConnection())
+            {
+                using (SqlCommand cmd = new SqlCommand(sql, cnx))
+                {
+                    cmd.Parameters.AddWithValue("@id_usuario", idUsuario);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            rutasID.Add(reader.GetInt32(0));
+                        }
+                    }
+                }
+            }
+
+            return rutasID;
+        }
+        
         public List<int> GetUsuariosIDporRuta(int idRuta)
         {
             List<int> usuariosID = new List<int>();
