@@ -1,14 +1,4 @@
 ﻿using BusTrackSV.API;
-<<<<<<< HEAD
-using ConexionBD;
-using Data.Repositories;
-
-var builder = WebApplication.CreateBuilder(args);
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-//builder.Services.AddSingleton(new DbConnector(connectionString));
-=======
 using BusTrackSV.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -45,15 +35,11 @@ if(connectionString == null)
 {
     throw new Exception("Connection string 'DefaultConnection' not found.");
 }
->>>>>>> Javier
 
 builder.Services.AddScoped<DbConnector>(_ => new DbConnector(connectionString));
 
 builder.Services.AddScoped<BusRepository>(); 
 builder.Services.AddScoped<UsuarioRepository>();
-<<<<<<< HEAD
-builder.Services.AddScoped<RutasRepository>();
-=======
 builder.Services.AddScoped<ChoferRepository>();
 builder.Services.AddScoped<RutasRepository>();
 builder.Services.AddScoped<CoordenadasRepository>();
@@ -65,14 +51,13 @@ builder.Services.AddScoped<BusService>();
 builder.Services.AddScoped<ChoferService>();
 builder.Services.AddScoped<RutaService>();
 
->>>>>>> Javier
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("PermitirTodo", policy =>
     {
         policy
-            .WithOrigins("http://localhost:8080")
+            .WithOrigins("http://localhost:5500", "http://127.0.0.1:5500") // Reemplaza con los orígenes permitidos
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -89,20 +74,17 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+
+//Comentado porque no existe certificado SSL en desarrollo
+//app.UseHttpsRedirection();
 
 app.UseCors("PermitirTodo");
 
 app.UseAuthorization();
 
-<<<<<<< HEAD
-app.MapAuth();
-app.MapBus();
-=======
 app.MapAuthController();
 app.MapBusController();
 app.MapChoferController();
 app.MapRutaController();
->>>>>>> Javier
 
 app.Run();

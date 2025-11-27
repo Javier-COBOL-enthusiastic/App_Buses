@@ -1,89 +1,135 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="es" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BustrackSV - Main</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BusTrackSV — Panel</title>
+  <link rel="icon" href="assets/img/logo-bus.png">
   <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>  
+
+  <!-- Leaflet solo para el modal de "dibujar ruta" -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin="">
+  </script>
 </head>
 <body>
-  <header class="top-bar">
-  <button class="menu-btn" aria-label="Open menu">
-    <span class="line"></span>
-    <span class="line"></span>
-  </button>
-  <h1 class="top-title">BusTrackSV</h1>
-</header>
+  <div id="appHeader"></div>
 
+  <main class="layout">
+    <section class="card pad">
+      <div class="row space">
+        <h2 class="h">Mis Rutas</h2>
+        <div class="row" style="gap:.6rem">
+          <button class="btn" id="btnNuevaRuta">Registrar nueva ruta</button>
+          <button class="btn danger" id="btnToggleDelete" title="Borrar rutas">Eliminar rutas</button>
+        </div>
+      </div>
 
-  <main class="map-container">
-    <div class="map-placeholder">
-      <div id="map" style="height: 100%; width: 100%; z-index: 0;"></div>
-    </div>
+      <div class="card" style="overflow:auto">
+        <table class="table" id="routesTable">
+          <thead>
+            <tr>
+              <th>Nombre de la Ruta</th>
+              <th>Activas ahora</th>
+              <th>Inactivas</th>
+              <th>Total</th>
+              <th style="width:240px"></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <p class="muted" style="margin-top:.6rem">Zona horaria: UTC-6 · Idioma: Español</p>
+    </section>
   </main>
 
-  <section class="bottom-panel">
-    <h2 class="panel-title">Nearby Routes</h2>
-    <ul class="route-list">
-      <li>Route 29 - Downtown to University</li>
-      <li>Route 15 - Central Station</li>
-      <li>Route 42 - North Loop</li>
-    </ul>
-  </section>
+  <div id="appFooter"></div>
 
-  <nav class="side-menu" id="sideMenu">
-    <ul>
-      <li><a href="#">Saved Routes</a></li>
-      <li><a href="#">Log Out</a></li>
-    </ul>
-  </nav>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script type="module">
-      import { setThemeToggle, toast, $ } from "./assets/js/ui.js";
-      import { api } from "./assets/js/api.js";
-      import { storage } from "./assets/js/storage.js";
+  <!-- 🔵 Modal 1: menú de tipo de registro -->
+  <div class="modal" id="modalTipoRuta">
+    <div class="card pad">
+      <h3>Registrar ruta</h3>
+      <p class="muted">Elegí cómo querés registrar la ruta.</p>
 
-      //if (!storage.token) location.href = "./login.html"; despues agregar pues aun no pasa token el backend
+      <div class="row" style="gap:1rem;margin-top:1rem;flex-wrap:wrap;">
+        <button type="button" class="btn" id="btnTipoExistente">
+          Registrar ruta existente
+        </button>
+        <button type="button" class="btn ghost" id="btnTipoNueva">
+          Dibujar nueva ruta
+        </button>
+      </div>
 
-      //setThemeToggle(document.getElementById("themeBtn")); agregar despues pues aun no hay tema oscuro 
+      <div class="row end" style="gap:.5rem;margin-top:1.5rem;justify-content:flex-end;">
+        <button type="button" class="btn ghost" id="btnTipoCancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
-      const map = L.map("map").setView([13.69294, -89.21819], 12);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:15, attribution:"© OpenStreetMap", minZoom: 10, zoom: 10}).addTo(map);
+  <!-- 🟢 Modal 2: registrar ruta EXISTENTE (usa POST /ruta/registrar/{idRuta}) -->
+  <div class="modal" id="modalRutaExistente">
+    <div class="card pad">
+      <h3>Registrar ruta existente</h3>
+      <p class="muted">Seleccioná una ruta que ya exista en el sistema.</p>
 
-      const params = new URLSearchParams(location.search);
-      const routeId = params.get("id") || 1;
+      <select id="selectRutaExistente" class="input" style="margin-top:1rem;"></select>
 
-      async function loadRoute(){
-        const data = await api.getRouteDetail(routeId);
-        $("#routeTitle").textContent = data.name;
-        const tbody = document.querySelector("#teamsTable tbody");
-        tbody.innerHTML = data.teams.map(t=>`<tr><td>${t.name}</td><td>—</td><td>—</td></tr>`).join("");
-        data.markers.forEach(p=> L.marker([p.lat,p.lng]).addTo(map));
-        document.getElementById("countActive").textContent = Math.max(1, data.markers.length - 1);
-        document.getElementById("countInactive").textContent = 1;
-      }
+      <div class="row end" style="gap:.5rem;margin-top:1.5rem;justify-content:flex-end;">
+        <button type="button" class="btn ghost" id="btnCancelarRutaExistente">Cancelar</button>
+        <button type="button" class="btn ok" id="btnGuardarRutaExistente">Vincular ruta</button>
+      </div>
+    </div>
+  </div>
 
-      /*
-      Cambiar despues a otra View?
-      document.getElementById("btnAddTeam").addEventListener("click", ()=> {
-        document.getElementById("modalTeam").classList.add("open");
-      });
-      document.getElementById("formTeam").addEventListener("submit", async (e)=>{
-        e.preventDefault();
-        try{
-          await api.addTeam(routeId, {
-            colors: document.getElementById("tColors").value.trim(),
-            driver: document.getElementById("tDriver").value.trim(),
-            phone:  document.getElementById("tPhone").value.trim()
-          });
-          toast("Equipo agregado correctamente","ok");
-          document.getElementById("modalTeam").classList.remove("open");
-        }catch{ toast("Error al agregar equipo","bad"); }
-      });*/
+  <!-- 🗺️ Modal 3: registrar NUEVA ruta con Leaflet (usa POST /ruta/registrar) -->
+  <div class="modal" id="modalRutaNueva">
+    <div class="card pad lg">
+      <h3>Registrar nueva ruta</h3>
 
-      loadRoute();
+      <div class="row" style="gap:1rem;margin:.8rem 0;flex-wrap:wrap;">
+        <div style="flex:1 1 200px;">
+          <label class="label" for="rNewName">Nombre / código</label>
+          <input id="rNewName" class="input" placeholder="Ej. Ruta 4">
+        </div>
+        <div style="flex:1 1 260px;">
+          <label class="label" for="rNewDesc">Descripción</label>
+          <input id="rNewDesc" class="input" placeholder="Ej. Terminal - Centro - Soyapango">
+        </div>
+      </div>
 
-  </script>
+      <div class="map-box">
+        <div id="mapNuevaRuta"></div>
+      </div>
+      <p class="muted" style="margin-top:.5rem;">
+        Haz clic en el mapa para ir agregando puntos. Se trazará la ruta en el orden de tus clics.
+      </p>
+
+      <div class="row end" style="gap:.5rem;margin-top:1rem;justify-content:flex-end;">
+        <button type="button" class="btn ghost" id="btnCancelarRutaNueva">Cancelar</button>
+        <button type="button" class="btn ok" id="btnGuardarRutaNueva">Guardar ruta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal confirmación de borrado -->
+  <div class="modal" id="modalConfirm">
+    <div class="card pad">
+      <h3 id="confirmText"></h3>
+      <div class="row end" style="gap:.5rem;margin-top:1rem;justify-content:flex-end;">
+        <button id="confirmNo" class="btn ghost">No</button>
+        <button id="confirmYes" class="btn danger">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⚙️ JS del panel -->
+  <script type="module" src="./assets/js/dashboard.js"></script>
 </body>
 </html>

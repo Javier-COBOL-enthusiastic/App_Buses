@@ -1,65 +1,10 @@
-<<<<<<< HEAD
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BustrackSV - Login</title>
-  <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
-  <header class="header">
-    <h1 class="app-title">BustrackSV</h1>
-  </header>
-
-  <main class="login-container">
-    <section class="login-box">
-      <h2 class="login-title">Login</h2>
-
-      <form class="login-form" id="loginForm">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required>
-
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
-
-        <div class="button-group">
-          <button type="submit" class="btn">Login</button>
-          <button type="button" class="btn secondary" onclick="window.location.href='register.html'">Register</button></a>
-        </div>
-      </form>
-    </section>
-  </main>
-  <div id="toast-wrap"></div>
-  <footer class="footer">
-    <p>&copy; 2025 BustrackSV</p>
-  </footer>
-
-
-  <script type="module">    
-    import { toast, openModal, setThemeToggle } from "./assets/js/ui.js";
-    import { api } from "./assets/js/api.js";
-    import { storage } from "./assets/js/storage.js";
-    
-    // Importante: NO auto-redireccionamos si hay token. Mostramos el form siempre.
-    const form = document.getElementById('loginForm');
-    form.addEventListener('submit', async (e)=>{      
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const pass  = document.getElementById('password').value.trim();
-      try{
-        const r = await api.login(email, pass);
-        //storage.token = r.token; storage.user = r.user; el backend no genera tokens aun
-        toast('Inicio de sesión correcto','ok');
-        setTimeout(()=> location.href='./dashboard.html', 1500);
-      }catch(err){ toast(err.message || 'Credenciales inválidas','bad'); }
-    });
-=======
 <!doctype html>
 <html lang="es" data-theme="light">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BusTrackSV — Iniciar sesión</title>  
+  <title>BusTrackSV — Iniciar sesión</title>
+  <link rel="icon" href="assets/img/logo-bus.png">
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
   <div id="appHeader"></div>
@@ -67,7 +12,8 @@
   <main class="auth-shell">
     <aside class="auth-left">
       <div class="brand">
-        <h1>Buses S.A.</h1>        
+        <h1>Buses S.A.</h1>
+        <img class="logo-bus" src="assets/img/logo-bus.png" alt="Bus">
         <p>Monitorea tus rutas y equipos en tiempo real.</p>
       </div>
     </aside>
@@ -77,10 +23,10 @@
         <h2 class="h">¡Bienvenido!</h2>
         <p class="muted" style="margin-bottom:.8rem">Inicie sesión con sus datos</p>
         <form id="loginForm" class="stack">
-          <div><label class="label" for="email">Usuario o correo</label><input class="input" id="email" required></div>
+          <div><label class="label" for="usuario">Usuario</label><input class="input" id="usuario" required></div>
           <div><label class="label" for="pass">Contraseña</label><input class="input" type="password" id="pass" required minlength="6"></div>
           <button class="btn" type="submit">Iniciar sesión</button>
-          <div class="row space"><a class="muted" href="#" id="forgot">¿Olvidaste tu contraseña?</a><a href="./register.html">Registrarse</a></div>
+          <div class="row space"><a class="muted" href="#" id="forgot">¿Olvidaste tu contraseña?</a><a href="register.html">Registrarse</a></div>
         </form>
       </div>
     </section>
@@ -109,25 +55,24 @@
   <div class="toast-wrap"></div>
 
   <script type="module">
-    import { renderHeader, renderFooter } from "./components.js";
-    import { toast, openModal, setThemeToggle } from "./ui.js";
-    import { api } from "./api.js";
-    import { storage } from "./storage.js";
+    import { renderHeader, renderFooter } from "./assets/js/components.js";
+    import { toast, openModal, setThemeToggle } from "./assets/js/ui.js";
+    import { api } from "./assets/js/api.js";
+    import { storage } from "./assets/js/storage.js";
 
-    //renderHeader({}); renderFooter();
+    renderHeader({}); renderFooter();
 
     // Importante: NO auto-redireccionamos si hay token. Mostramos el form siempre.
     const form = document.getElementById('loginForm');
     form.addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const email = document.getElementById('email').value.trim();
+      const usuario = document.getElementById('usuario').value.trim();
       const pass  = document.getElementById('pass').value.trim();
       try{
-        const r = await api.login(email, pass);
-        console.log(r)
+        const r = await api.login(usuario, pass);
         storage.token = r.token; storage.user = r.user;
         toast('Inicio de sesión correcto','ok');
-        setTimeout(()=> location.href='./dashboard.html', 350);
+        setTimeout(()=> location.href='dashboard.html', 350);
       }catch(err){ toast(err.message || 'Credenciales inválidas','bad'); }
     });
 
@@ -153,7 +98,6 @@
         s1.style.display='grid'; s2.style.display='none';
       }catch(err){ toast(err.message || 'No se pudo actualizar','bad'); }
     });
->>>>>>> Javier
   </script>
 </body>
 </html>

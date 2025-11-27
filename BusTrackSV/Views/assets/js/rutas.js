@@ -1,6 +1,6 @@
-import { setThemeToggle, toast, $ } from "../../ui.js";
+import { setThemeToggle, toast, $ } from "./ui.js";
 import { api } from "./api.js";
-import { storage } from "../../storage.js";
+import { storage } from "./storage.js";
 
 if (!storage.token) location.href = "./login.html";
 

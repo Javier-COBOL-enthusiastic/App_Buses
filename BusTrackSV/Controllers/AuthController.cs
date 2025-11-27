@@ -19,6 +19,7 @@ namespace BusTrackSV.API
             {
                 try
                 {
+                    Console.WriteLine("Registrando usuario: " + u.usuario);
                     await Task.Run(() => authService.Registrar(u));
                     return Results.Ok(new {message = "Usuario registrado correctamente." });
                 }                
@@ -41,7 +42,8 @@ namespace BusTrackSV.API
             group.MapPost("/login", async (LoginRequest req, AuthService authService) =>
             {
                 try
-                {                                                      
+                {         
+                    Console.WriteLine("Intentando login para usuario: " + req.usuario);                                             
                     var res = await Task.Run(() => authService.Login(req));
                     if (res == null)
                         return Results.Problem("Autenticación problema");

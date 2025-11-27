@@ -24,7 +24,7 @@ namespace ConexionBD
             }
             catch (SqlException ex)
             {
-                Console.WriteLine("Error al conectar: " + ex.Message);
+                Console.WriteLine("Error al conectar a base de datos: " + ex.Message);
                 throw;
             }
         }

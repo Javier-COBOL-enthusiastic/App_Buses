@@ -79,6 +79,7 @@ CREATE TABLE user_rutas (
 -- es mejor usar procedimientos almacenado, es más seguro y es más dificil de vulnerar que dejar el muy puro "insert-deleté-update"
 
 -- procedimiento almacenado para guardar usuarios
+
 CREATE PROCEDURE sp_registrar_usuario
     @nombre_completo NVARCHAR(150),
     @correo NVARCHAR(100),
@@ -119,6 +120,7 @@ SELECT * FROM usuarios
 
 
 -- procedimiento almacenado para la tabla rutas
+
 CREATE PROCEDURE sp_registrar_rutas
     @nombre_ruta VARCHAR(10),
     @descripcion_ruta VARCHAR(1000)
@@ -139,6 +141,7 @@ END;
 GO
 
 -- procedimiento almacenado para la tabla puntos_rutas
+
 CREATE PROCEDURE sp_registrar_puntos_ruta
     @id_ruta INT,
     @id_coordenada INT,
@@ -177,6 +180,7 @@ END;
 GO
 
 -- procedimiento almacenado para la tabla buses
+
 CREATE PROCEDURE sp_registrar_buses
     @numero_placa VARCHAR(10),
     @estado_bus BIT,
@@ -197,6 +201,7 @@ END;
 GO
 
 -- procedimiento almacenado para la tabla choferes
+
 CREATE PROCEDURE sp_registrar_choferes
     @nombre_completo VARCHAR(150),
     @telefono_chofer char(9),
@@ -264,6 +269,7 @@ EXEC sp_registrar_choferes @nombre_completo = 'Javier Boliviano', @telefono_chof
 EXEC sp_registrar_choferes @nombre_completo = 'Pruebencia', @telefono_chofer = '9900-0000', @id_bus=5; --  @id_bus = 1
 
 -- Procedimiento almacenado para validar el usuario y su contraseña
+
 CREATE PROCEDURE sp_validar_usuario_login
     @usuario NVARCHAR(100),
     @password NVARCHAR(200)
