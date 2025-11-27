@@ -50,8 +50,9 @@ public class BusService
         if(_busRepository.RutaPertenceUsuario(nbus.id_ruta, UserID) == false)
         {
             throw new RutaNoRegistrada();
-        }        
-        
+        }
+
+        nbus.id_usuario = UserID;                
         _busRepository.RegistrarBus(nbus);
     }
 

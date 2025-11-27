@@ -2,6 +2,8 @@ using BusTrackSV.Service;
 using Microsoft.AspNetCore.Authorization;
 using Data.Repositories;
 using BusTrackSV.Models;
+using Microsoft.OpenApi.Extensions;
+using Microsoft.Data.SqlClient;
 
 namespace BusTrackSV.API;
 public static class BusController
@@ -52,20 +54,24 @@ public static class BusController
         });
 
         group.MapPost("/add", async (HttpContext ctx, BusRegistroDTO nbus, BusService busService) =>
-        {
+        {            
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null)
                 return Results.Unauthorized();
 
             var userId = userIdClaim.Value;
             try
-            {
+            {                                
                 await Task.Run(() => busService.AddBus(int.Parse(userId), nbus));
                 return Results.Accepted();
             }
             catch(UserInvalidado ex)
             {
                 return Results.NotFound(ex.Message);
+            }
+            catch(SqlException ex) when (ex.Number == 2627)
+            {
+                return Results.Conflict("Ya existe un bus con este número de placa.");
             }
             catch(Exception ex) when(
                 ex is NullValue ||
@@ -76,8 +82,8 @@ public static class BusController
                 return Results.BadRequest(ex.Message);
             }
             catch(Exception ex)
-            {
-                return Results.Problem(ex.Message);
+            {                                
+                return Results.Problem(ex.Message);                                
             }
         });
 
@@ -89,7 +95,7 @@ public static class BusController
             var userId = userIdClaim.Value;
 
             try
-            {
+            {                
                 await Task.Run(() => busService.PutBus(int.Parse(userId), bus));
                 return Results.Accepted();
             }

@@ -275,7 +275,7 @@ export const api = {
     
     const busesRuta = (buses || []).filter((b) => b.id_ruta === idRuta);
 
-    console.log(busesRuta);
+    //console.log(busesRuta);
 
     const teams = busesRuta.map((bus) => {
       const chofer = (choferes || []).find(

@@ -30,12 +30,6 @@
           <tbody></tbody>
         </table>
       </div>
-
-      <div class="stack" style="margin-top:1rem">
-        <label class="label">Cargar CSV de ruta (lat,lon) o (id,lat,lon)</label>
-        <input id="csvInput" type="file" accept=".csv">
-      </div>
-
       <div id="map" style="height:420px; margin-top:1rem; border-radius:12px; border:1px solid var(--ring)"></div>
     </section>
   </main>
@@ -92,7 +86,15 @@
     const trash  = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
 
     async function refresh(){
-      routeData = await api.getRouteDetail(routeId);
+      routeData = await api.getRouteDetail(routeId);      
+      
+      let pts = [];
+      for(let i = 0; i < routeData.markers.length; i++) {
+        const m = routeData.markers[i];
+        pts.push([m.latitud, m.longitud]);
+      }
+      L.polyline(pts, {color: 'blue'}).addTo(map);
+
       $('#routeTitle').textContent = routeData.name;
       $('#countActive').textContent = routeData.active||0;
       $('#countInactive').textContent = routeData.inactive||0;
@@ -185,25 +187,6 @@
         document.getElementById('modalConfirm').classList.remove('open');
         toast('Equipo eliminado','ok'); refresh();
       }
-    });
-
-    // CSV
-    document.getElementById('csvInput').addEventListener('change', e=>{
-      const f = e.target.files?.[0]; if(!f) return;
-      const fr = new FileReader();
-      fr.onload = () => {
-        const lines = String(fr.result).trim().split("\n");
-        const pts = [];
-        for(let i=1;i<lines.length;i++){
-          const c = lines[i].split(",").map(s=>s.trim());
-          let lat = parseFloat(c[0]), lon = parseFloat(c[1]);
-          if(Number.isNaN(lat) || Number.isNaN(lon)){ lat = parseFloat(c[1]); lon = parseFloat(c[2]); }
-          if(!Number.isNaN(lat) && !Number.isNaN(lon)) pts.push([lat,lon]);
-        }
-        if(pts.length){ L.polyline(pts).addTo(map); map.fitBounds(pts); toast("Ruta cargada desde CSV","ok"); }
-        else{ toast("CSV sin puntos válidos","bad"); }
-      };
-      fr.readAsText(f);
     });
 
     refresh();

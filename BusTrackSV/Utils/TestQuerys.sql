@@ -27,18 +27,26 @@ INNER JOIN buses b ON c.id_bus = b.id_bus
 INNER JOIN usuarios u ON b.id_usuario = u.id_usuario
 WHERE u.id_usuario = 4;
 
-UPDATE buses
-SET id_ruta = 8
-WHERE id_bus = 6;
-GO
-Select * from buses
-Select * from rutas
+
+SELECT
+  pr.id_punto_ruta,
+  pr.id_ruta,
+  r.nombre_ruta,
+  pr.orden,
+  pr.id_coordenada,
+  c.latitud,
+  c.longitud
+FROM puntos_ruta pr
+JOIN coordenadas c ON pr.id_coordenada = c.id_coordenada
+JOIN rutas r ON pr.id_ruta = r.id_ruta
+ORDER BY pr.id_ruta, pr.orden;
 
 
 UPDATE choferes
 SET id_bus = 8
 WHERE id_chofer = 7;
 
+select * from buses
 
 exec sp_registrar_usuarios_rutas
 @id_usuario = 4,
