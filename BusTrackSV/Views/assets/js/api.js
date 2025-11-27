@@ -268,8 +268,14 @@ export const api = {
       req("/buses/ids", "GET"),
       req("/choferes/get", "GET"),
     ]);
-
+    
+    for(let i=0; i<buses.length; i++) {
+      buses[i] = await this.getBusById(buses[i]);
+    }
+    
     const busesRuta = (buses || []).filter((b) => b.id_ruta === idRuta);
+
+    console.log(busesRuta);
 
     const teams = busesRuta.map((bus) => {
       const chofer = (choferes || []).find(

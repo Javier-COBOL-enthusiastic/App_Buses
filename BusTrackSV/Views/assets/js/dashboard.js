@@ -80,8 +80,15 @@ function renderRows(routes) {
 
 async function loadRoutes() {
   try {
-    const routes = await api.getRouteDetail(); // GET /buses/ids
-    renderRows(routes || []);
+    const routesID = await api.getRoutes(); // GET /ruta/ids
+    const routesDetail = [];
+    for(const r of routesID) {
+      const detail = await api.getRouteDetail(r); // precachear detalles
+      console.log(detail);
+      routesDetail.push(detail);
+    }
+
+    renderRows(routesDetail || []);
   } catch (err) {
     console.error(err);
     toast("Error al cargar las rutas", "bad");
