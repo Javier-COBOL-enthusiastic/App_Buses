@@ -244,6 +244,11 @@ export const api = {
   // GET /ruta/coordenadas/{idRuta:int}
   // GET /buses/ids
   // GET /choferes/get
+  async getALLRoutes() {
+    const rutasIDs = await req(`/ruta/allids`, "GET");
+    return rutasIDs
+  },
+
   async getRouteDetail(idRuta) {
     if (USE_MOCK) {
       const uid = storage.user?.id;
@@ -268,11 +273,11 @@ export const api = {
       req("/buses/ids", "GET"),
       req("/choferes/get", "GET"),
     ]);
-    
-    for(let i=0; i<buses.length; i++) {
+
+    for (let i = 0; i < buses.length; i++) {
       buses[i] = await this.getBusById(buses[i]);
     }
-    
+
     const busesRuta = (buses || []).filter((b) => b.id_ruta === idRuta);
 
     //console.log(busesRuta);
@@ -504,5 +509,15 @@ export const api = {
   // GET /choferes/get/{id:int}
   async getDriverById(idChofer) {
     return req(`/choferes/get/${idChofer}`, "GET");
+  },
+
+  /* ---------- SNAP TO ROAD (/ruta/snap-to-road) ---------- */
+
+  // POST /ruta/snap-to-road
+  async snapToRoad(lat, lng) {
+    return req("/ruta/snap-to-road", "POST", {
+      latitud: lat,
+      longitud: lng,
+    });
   },
 };

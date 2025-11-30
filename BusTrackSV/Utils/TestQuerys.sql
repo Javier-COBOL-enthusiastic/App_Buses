@@ -3,9 +3,9 @@ go
 
 
 select * from usuarios
-select * from user_rutas
 select * from buses
 select * from rutas
+select * from user_rutas
 select * from puntos_ruta
 select * from choferes
 select * from coordenadas

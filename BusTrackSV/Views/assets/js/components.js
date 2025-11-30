@@ -6,7 +6,7 @@ export function renderHeader(opts={}){
   el.innerHTML = `
   <header class="appbar">
     <div class="logo">
-      <img class="logo-ico" src="/assets/img/logo-bus.png" alt="logo" width="26" height="26">
+      <img class="logo-ico" src="./assets/img/logo-bus.png" alt="logo" width="26" height="26">
       <strong>BusTrackSV</strong>
     </div>
     <div class="grow"></div>

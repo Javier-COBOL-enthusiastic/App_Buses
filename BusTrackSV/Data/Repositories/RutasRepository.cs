@@ -172,7 +172,7 @@ namespace Data.Repositories
 
             return rutasID;
         }
-        
+
         public List<int> GetUsuariosIDporRuta(int idRuta)
         {
             List<int> usuariosID = new List<int>();
@@ -211,6 +211,29 @@ namespace Data.Repositories
                     cmd.ExecuteNonQuery();
                 }
             }
+        }
+
+        public List<int> GetALLRutasID()
+        {
+            List<int> rutasID = new List<int>();
+
+            string sql = "SELECT id_ruta FROM rutas";
+
+            using (SqlConnection cnx = _connector.CreateConnection())
+            {
+                using (SqlCommand cmd = new SqlCommand(sql, cnx))
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            rutasID.Add(reader.GetInt32(0));
+                        }
+                    }
+                }
+            }
+
+            return rutasID;
         }
         public void DesvincularRutaUsuario(int idRuta, int idUsuario)
         {

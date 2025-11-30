@@ -50,6 +50,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<BusService>();
 builder.Services.AddScoped<ChoferService>();
 builder.Services.AddScoped<RutaService>();
+builder.Services.AddSingleton<SnapToRoadService>();
 
 
 builder.Services.AddCors(options =>

@@ -11,6 +11,19 @@ public static class RutaController
         var group = app.MapGroup("/ruta");
         group.RequireAuthorization();
 
+        group.MapGet("/allids", async (RutaService rutaService) =>
+        {
+            try
+            {
+                var res = await Task.Run(() => rutaService.ObtenerTodasLasRutasID());
+                return Results.Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        });
+
         group.MapGet("/ids", async (HttpContext ctx, RutaService rutaService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
@@ -111,5 +124,20 @@ public static class RutaController
             catch (NullValue ex) { return Results.NotFound(new { message = ex.Message }); }
             catch (Exception ex) { return Results.Problem(ex.Message); }
         });
+
+        group.MapPost("/snap-to-road", async (SnapToRoadRequest request, SnapToRoadService snapService) =>
+        {
+            try
+            {
+                var (latitud, longitud) = await Task.Run(() => snapService.SnapToRoad(request.latitud, request.longitud));
+                return Results.Ok(new { latitud, longitud });
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        });
     }
 }
+
+public record SnapToRoadRequest(double latitud, double longitud);

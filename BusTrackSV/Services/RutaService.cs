@@ -18,8 +18,14 @@ public class RutaService
         _busRepository = busRepository;
     }
 
-    public List<int> ObtenerRutasIDPorUsuario(int idUsuario)
+    public List<int> ObtenerTodasLasRutasID()
     {
+        var res = _rutasRepository.GetALLRutasID();
+        return res;
+    }
+
+    public List<int> ObtenerRutasIDPorUsuario(int idUsuario)
+    {        
         if(idUsuario <= 0)
             throw new UserInvalidado();
 
@@ -72,8 +78,8 @@ public class RutaService
         if(idRuta <= 0)
             throw new NullValue("ID de ruta inválido.");
 
-        if(!_busRepository.RutaPertenceUsuario(idRuta, userID))
-            throw new UnauthorizedAccessException("El usuario no tiene asignada esta ruta.");
+        // if(!_busRepository.RutaPertenceUsuario(idRuta, userID))
+        //     throw new UnauthorizedAccessException("El usuario no tiene asignada esta ruta.");
 
         var res = _puntosRutaRepository.ObtenerCoordenadasDeRuta(idRuta);
 
@@ -88,8 +94,8 @@ public class RutaService
         if(idUsuario <= 0 || idRuta <= 0)
             throw new NullValue("ID de usuario o ruta inválido.");
         
-        if(!_busRepository.RutaPertenceUsuario(idRuta, idUsuario))
-            throw new UnauthorizedAccessException("El usuario no tiene asignada esta ruta.");
+        // if(!_busRepository.RutaPertenceUsuario(idRuta, idUsuario))
+        //     throw new UnauthorizedAccessException("El usuario no tiene asignada esta ruta.");
 
         var res = _rutasRepository.GetRutaById(idRuta);        
 
