@@ -20,11 +20,13 @@ namespace BusTrackSV.API
                 try
                 {
                     Console.WriteLine("Registrando usuario: " + u.usuario);
+                    Console.WriteLine("ROL ASIGNADO: " + u.id_rol);
                     await Task.Run(() => authService.Registrar(u));
                     return Results.Ok(new {message = "Usuario registrado correctamente." });
                 }                
                 catch(SqlException ex)
                 {
+                    Console.WriteLine("SQL Exception: " + ex.Message);
                     switch (ex.Number)
                     {
                         case 2627:
@@ -44,34 +46,37 @@ namespace BusTrackSV.API
                 try
                 {         
                     Console.WriteLine("Intentando login para usuario: " + req.usuario);                                             
-                    var res = await Task.Run(() => authService.Login(req));
+                    var res = await Task.Run(() => authService.Login(req));                     
                     if (res == null)
+                    {                        
                         return Results.Problem("Autenticación problema");
+                    }
                     if (res.id_usuario < 0)
-                        return Results.BadRequest("Campos requeridos incompletos");
+                    {
+                        return Results.BadRequest("Campos requeridos incompletos");                        
+                    }
 
                     var claims = new[]
                     {
                         new Claim(ClaimTypes.Name, req.usuario),
-                        new Claim("userId", res.id_usuario.ToString())
-                    };
+                        new Claim("userId", res.id_usuario.ToString()),
+                        new Claim("roleId", res.id_rol.ToString()),
+                    };                    
                     var creds = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256);
                     var token = new JwtSecurityToken(claims: claims, expires: DateTime.UtcNow.AddHours(1), signingCredentials: creds);
                     var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-                    return Results.Ok(new { token = tokenString, user = req.usuario });
+                    return Results.Ok(new { token = tokenString, user = res });
                 }
                 catch (SqlException ex)
-                {
+                {                    
                     if(ex.Number == 51000)
                     {
                         return Results.Unauthorized();
-                    }
-
+                    }                                                                            
                     return Results.Problem(ex.Message);
                 }
                 catch (Exception ex)        
-                {                                        
+                {  
                     return Results.Problem(ex.Message);
                 }
             });

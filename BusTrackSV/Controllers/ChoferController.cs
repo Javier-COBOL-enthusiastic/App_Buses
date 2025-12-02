@@ -13,6 +13,36 @@ public static class ChoferController
         var group = app.MapGroup("/choferes");
         group.RequireAuthorization();
         
+        group.MapGet("/busruta/", async (HttpContext ctx, ChoferService choferService) =>
+        {
+            var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
+            var roleIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "roleId");
+            if (userIdClaim == null)
+                return Results.Unauthorized();
+
+            if(roleIdClaim == null || roleIdClaim.Value != "2")
+                return Results.Unauthorized();
+
+            try
+            {                                
+                var choferID = int.Parse(userIdClaim.Value);
+                var res = await Task.Run(() => choferService.GetBusRutaInfo(choferID));
+                return Results.Ok(res);
+            }
+            catch (UserInvalidado)
+            {
+                return Results.Forbid();
+            }
+            catch (NullValue)
+            {
+                return Results.NotFound(new { message = "Chofer no encontrado." });
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        });
+
         group.MapGet("/get/{id:int}", async (HttpContext ctx, int id, ChoferService choferService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
@@ -60,7 +90,7 @@ public static class ChoferController
                 return Results.Problem(ex.Message);
             }
         });
-
+        
         group.MapPost("/add", async (HttpContext ctx, ChoferRegistroDTO nch, ChoferService choferService) =>
         {
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");

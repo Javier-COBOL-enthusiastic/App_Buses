@@ -51,6 +51,7 @@ builder.Services.AddScoped<BusService>();
 builder.Services.AddScoped<ChoferService>();
 builder.Services.AddScoped<RutaService>();
 builder.Services.AddSingleton<SnapToRoadService>();
+builder.Services.AddSingleton<BusTrackingService>();
 
 
 builder.Services.AddCors(options =>

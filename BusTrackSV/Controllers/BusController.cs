@@ -14,6 +14,49 @@ public static class BusController
         var group = app.MapGroup("/buses");
         group.RequireAuthorization(); 
         
+        group.MapPost("/location", async (BusLocation loc, BusService busService) =>
+        {
+            try
+            {
+                await Task.Run(() => busService.UpdateLocation(loc));                
+                return Results.Ok();
+            }
+            catch(UserInvalidado ex)
+            {
+                return Results.NotFound(ex.Message);
+            }            
+            catch (Exception ex)
+            {                
+                return Results.Problem(ex.Message);
+            }                        
+        });
+
+        group.MapGet("/location/{idBus:int}", async (HttpContext context, int idBus, BusService busService) =>
+        {
+            var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null)
+                return Results.Unauthorized();            
+            
+            var userId = userIdClaim.Value;
+            try
+            {
+                var res = await Task.Run(() => busService.GetLocation(int.Parse(userId), idBus));                
+                return Results.Json(res);
+            }
+            catch(UserInvalidado ex)
+            {
+                return Results.NotFound(ex.Message);
+            }
+            catch(NullValue)
+            {
+                return Results.NoContent();
+            }
+            catch (Exception ex)
+            {                
+                return Results.Problem(ex.Message);
+            }                        
+        });
+
         group.MapGet("/ids", async (HttpContext context, BusService busService)  =>
         {
             var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");

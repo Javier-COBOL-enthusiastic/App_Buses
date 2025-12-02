@@ -29,9 +29,8 @@ public class AuthService
             UsuarioValidado ans =  new UsuarioValidado();
             ans.id_usuario = -1;
             return ans;
-        }
-
-        var res = _usuarioRepository.Login(req.usuario, req.password);                
+        }                
+        var res = _usuarioRepository.Login(req.usuario, req.password);               
         return res;
     }
 }

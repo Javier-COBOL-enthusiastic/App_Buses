@@ -65,6 +65,7 @@ export const api = {
       correo: payload?.correo ?? payload?.email ?? "",
       usuario: payload?.usuario ?? payload?.username ?? "",
       password: payload?.password ?? "",
+      id_rol: payload?.id_rol ?? 3,
     };
 
     if (USE_MOCK) {
@@ -120,6 +121,7 @@ export const api = {
           profile: u.profile || {},
         },
       };
+      
       storage.token = res.token;
       storage.user = res.user;
       return res;
@@ -130,9 +132,9 @@ export const api = {
       password,
     });
 
-    // Backend: return Results.Ok(new { token = tokenString, user = req.usuario });
+    // Backend: return Results.Ok(new { token = tokenString, user = req.usuario });    
     storage.token = res.token;
-    storage.user = { usuario: res.user };
+    storage.user = res.user;    
     return res;
   },
 
@@ -368,7 +370,13 @@ export const api = {
     const finalDetail = await api.getRouteDetail(routeId);
     return finalDetail.teams.find((t) => t.id === lastTeam.id) || lastTeam;
   },
-
+  async getChoferUsuario(idChofer) {    
+    return req(`/choferes/usuario/${idChofer}`, "GET");
+  },
+  async SendLocation(payload){
+    console.log(payload);
+    return req(`/buses/location`, "POST", payload);
+  },
   // PUT /buses/update  +  PUT /choferes/update / POST /choferes/add
   async updateTeam(routeId, teamId, fields) {
     if (USE_MOCK) {
@@ -502,6 +510,11 @@ export const api = {
   /* ---------- CHOFERES (/choferes) ---------- */
 
   // GET /choferes/get
+
+  async getBusByChoferUserID() {
+    return req(`/choferes/busruta/`, "GET");
+  },
+
   async listDrivers() {
     return req("/choferes/get", "GET");
   },

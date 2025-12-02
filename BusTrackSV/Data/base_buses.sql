@@ -31,6 +31,10 @@ CONSTRAINT fk_pr_coordenada FOREIGN KEY (id_coordenada) REFERENCES coordenadas(i
 ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE roles (
+id_rol INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+nombre_rol VARCHAR(50) NOT NULL UNIQUE
+);
 
 create table usuarios(
 id_usuario int not null primary key identity(1,1),
@@ -41,6 +45,11 @@ contraseña_usuario varchar(100) not null, -- aquì se va a guardar el hash de l
 CONSTRAINT U_correo UNIQUE(correo_electronico_usuario),
 CONSTRAINT U_usuario UNIQUE(usuario)
 );
+
+ALTER TABLE usuarios
+ADD CONSTRAINT fk_usuarios_roles FOREIGN KEY (id_rol)
+REFERENCES roles(id_rol)
+ON UPDATE CASCADE ON DELETE NO ACTION;
 
 
 CREATE TABLE buses(
@@ -108,6 +117,44 @@ BEGIN
             @correo,
             @usuario,
             CONVERT(VARCHAR(100), @hash, 2)
+        );
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+-- ODIO A LOS ROLES :,(
+ALTER PROCEDURE sp_registrar_usuario
+    @nombre_completo NVARCHAR(150),
+    @correo NVARCHAR(100),
+    @usuario NVARCHAR(100),
+    @password NVARCHAR(200),
+    @id_rol INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        DECLARE @salt NVARCHAR(15) = 'equipovicturbo';
+
+        DECLARE @hash VARBINARY(32) =
+            HASHBYTES('SHA2_256', @salt + @password);
+
+        INSERT INTO usuarios (
+            nombre_completo_usuario,
+            correo_electronico_usuario,
+            usuario,
+            contraseña_usuario,
+            id_rol
+        )
+        VALUES (
+            @nombre_completo,
+            @correo,
+            @usuario,
+            CONVERT(VARCHAR(100), @hash, 2),
+            @id_rol
         );
     END TRY
     BEGIN CATCH
@@ -297,14 +344,16 @@ BEGIN
 
     -- Seleccionar el usuario si el nombre de usuario y el hash coinciden
     SELECT 
-        id_usuario, 
-        usuario, 
-        correo_electronico_usuario, 
-        usuario 
-    FROM usuarios
+    u.id_usuario, 
+    u.nombre_completo_usuario, 
+    u.correo_electronico_usuario,
+    u.id_rol,
+    u.usuario
+    FROM usuarios u
+    INNER JOIN roles r ON u.id_rol = r.id_rol
     WHERE 
-        usuario = @usuario 
-        AND contraseña_usuario = @hash_comparar;
+        u.usuario = @usuario 
+        AND u.contraseña_usuario = @hash_comparar;
 END;
 GO
 
@@ -451,6 +500,41 @@ BEGIN
     END CATCH
 END;
 GO
+
+-- CULPO DE TODO A ENRIQUE Y A LOS ROLES
+ALTER PROCEDURE sp_actualizar_usuario
+    @id_usuario INT,
+    @nombre_completo VARCHAR(150),
+    @correo VARCHAR(100),
+    @usuario VARCHAR(100),
+    @password VARCHAR(200),
+    @id_rol INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        
+        DECLARE @salt NVARCHAR(15) = 'equipovicturbo';
+
+        DECLARE @hash VARBINARY(32) =
+            HASHBYTES('SHA2_256', @salt + @password);
+
+        UPDATE usuarios
+        SET nombre_completo_usuario = @nombre_completo,
+            correo_electronico_usuario = @correo,
+            usuario = @usuario,
+            contraseña_usuario = CONVERT(VARCHAR(100), @hash, 2),
+            id_rol = @id_rol
+        WHERE id_usuario = @id_usuario;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+
 
 SELECT * FROM usuarios;
 -- EXEC sp_actualizar_usuario @id_usuario = 1, @nombre_completo = 'Gustavio Rafael Del Ano', @correo = 'gustavio@gmail.com', @usuario = 'perunoesclave', @password = 'hondurasesclave1234';

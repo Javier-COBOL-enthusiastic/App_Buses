@@ -161,5 +161,71 @@ namespace Data.Repositories
             
             return clst;
         }
+        public  BusRutaInfo? GetBusByChoferUserID(int choferUserID)
+        {
+            BusRutaInfo? bus = null;
+            string sql = """
+            SELECT       
+            b.id_bus,      
+            b.numero_placa,
+            b.estado_bus,
+            r.nombre_ruta,
+            r.descripcion_ruta  
+            FROM buses b
+            INNER JOIN rutas r ON b.id_ruta = r.id_ruta
+            INNER JOIN choferes ch ON b.id_bus = ch.id_bus
+            INNER JOIN usuarios u ON u.nombre_completo_usuario = ch.nombre_completo_chofer
+            WHERE u.id_usuario = @id_usuario;
+            """;
+            using (SqlConnection cnx = _connector.CreateConnection())
+            {
+                using (SqlCommand cmd = new SqlCommand(sql, cnx))
+                {
+                    cmd.Parameters.AddWithValue("@id_usuario", choferUserID);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            bus = new BusRutaInfo
+                            {
+                                id_bus = reader.GetInt32(0),
+                                numero_placa = reader.GetString(1),
+                                estado_bus = reader.GetBoolean(2),
+                                nombre_ruta = reader.GetString(3),
+                                descripcion_ruta = reader.GetString(4)
+                            };
+                        }
+                    }
+                }
+            }
+            return bus;
+        }
+        public int GetChoferUsuario(int choferID)
+        {            
+            int user = 0;
+            string sql = """
+            SELECT            
+            u.id_usuario
+            FROM usuarios u
+            JOIN choferes ch ON u.nombre_completo_usuario = ch.nombre_completo_chofer
+            WHERE ch.id_chofer = @id_chofer
+            """;
+
+            using (SqlConnection cnx = _connector.CreateConnection())
+            {
+                using (SqlCommand cmd = new SqlCommand(sql, cnx))
+                {
+                    cmd.Parameters.AddWithValue("@id_chofer", choferID);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            user = reader.GetInt32(0);                            
+                        }
+                    }
+                }
+            }        
+            return user;
+        }
     }
 }

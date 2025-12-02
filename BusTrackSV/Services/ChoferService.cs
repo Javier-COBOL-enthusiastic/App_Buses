@@ -6,11 +6,13 @@ public class ChoferService
 {
     private readonly ChoferRepository _choferRepository;
     private readonly BusRepository _busRepository;
+    private readonly UsuarioRepository _usuarioRepository;
 
-    public ChoferService(ChoferRepository choferRepository, BusRepository busRepository)
+    public ChoferService(ChoferRepository choferRepository, BusRepository busRepository, UsuarioRepository usuarioRepository)
     {
         _choferRepository = choferRepository;
         _busRepository = busRepository;
+        _usuarioRepository = usuarioRepository;
     }
 
     public List<Chofer> Get(int userID)
@@ -97,7 +99,19 @@ public class ChoferService
 
         _choferRepository.ActualizarChofer(chofer);
     }
+    public BusRutaInfo GetBusRutaInfo(int ChoferUsuarioID)
+    {
+        if(ChoferUsuarioID <= 0)
+            throw new UserInvalidado();
 
+        var busRutaInfo = _choferRepository.GetBusByChoferUserID(ChoferUsuarioID);
+        if(busRutaInfo == null)
+        {
+            throw new NullValue("El chofer no tiene un bus asignado.");
+        }        
+        return busRutaInfo;
+    }
+    
     public void DeleteChofer(int userID, int choferID)
     {
         var choferes = _choferRepository.GetChoferIdByUserID(userID);
@@ -106,6 +120,11 @@ public class ChoferService
             throw new UserInvalidado();
         }
 
-        _choferRepository.EliminarChofer(choferID);
+        var id_user = _choferRepository.GetChoferUsuario(choferID);        
+        if(id_user != 0)
+        {            
+            _usuarioRepository.EliminarUsuario(id_user);
+        } // no existe usuario de chofer?? xd   
+        _choferRepository.EliminarChofer(choferID);        
     }
 }

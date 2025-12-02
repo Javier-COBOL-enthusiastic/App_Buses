@@ -20,6 +20,7 @@ namespace BusTrackSV.Models
         public string nombre_completo { get; set; } = "";
         public string correo { get; set; } = "";
         public string usuario { get; set; } = "";
+        public int id_rol { get; set; }
     }
 
     public class UsuarioRegistroDTO
@@ -28,5 +29,6 @@ namespace BusTrackSV.Models
         public string correo { get; set; } = "";
         public string usuario { get; set; } = "";
         public string password { get; set; } = "";
+        public int id_rol { get; set; }
     }
 }

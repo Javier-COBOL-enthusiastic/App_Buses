@@ -2,9 +2,8 @@
 <html lang="es" data-theme="light">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BusTrackSV — Iniciar sesión</title>
-  <link rel="icon" href="assets/img/logo-bus.png">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <title>BusTrackSV — Iniciar sesión</title>  
+  <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 <body>
   <div id="appHeader"></div>
@@ -13,7 +12,7 @@
     <aside class="auth-left">
       <div class="brand">
         <h1>Buses S.A.</h1>
-        <img class="logo-bus" src="assets/img/logo-bus.png" alt="Bus">
+        <img class="logo-bus" src="./assets/img/logo-bus.png" alt="Bus">
         <p>Monitorea tus rutas y equipos en tiempo real.</p>
       </div>
     </aside>
@@ -69,10 +68,14 @@
       const usuario = document.getElementById('usuario').value.trim();
       const pass  = document.getElementById('pass').value.trim();
       try{
-        const r = await api.login(usuario, pass);
-        storage.token = r.token; storage.user = r.user;
+        const r = await api.login(usuario, pass);        
         toast('Inicio de sesión correcto','ok');
-        setTimeout(()=> location.href='dashboard.html', 350);
+        const rol = r.user.id_rol?r.user.id_rol:0;
+        if(rol === 3){
+          setTimeout(()=> location.href = "dashboard.html", 300);
+        }else if(rol === 2){
+          setTimeout(()=> location.href = "gps.html", 300);                            
+        }
       }catch(err){ toast(err.message || 'Credenciales inválidas','bad'); }
     });
 

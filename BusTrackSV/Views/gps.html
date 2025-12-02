@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+
+ <link rel="stylesheet" href="./assets/css/style.css">
+
+  <title>BusTrackSV — Chofer</title>
+</head>
+
+<body>
+ <div id="appHeader"></div>
+
+ <div class="layout">
+  <div class="card pad">
+   <h2 class="h">Bienvenido, <span id="userName">—</span></h2>
+   <p class="muted" id="busInfo">Cargando información del bus...</p>
+  </div>
+
+  <div class="card pad">
+   <h3 class="h">Ubicación en tiempo real</h3>
+   <p class="muted" id="locationStatus">Iniciando seguimiento...</p>
+  </div>
+ </div>
+
+ <div id="appFooter"></div>
+ <div class="toast-wrap" id="toast-wrap"></div>
+
+ <script type="module">
+  import { storage } from "./assets/js/storage.js";
+  import { api } from "./assets/js/api.js";
+  import { renderHeader, renderFooter } from "./assets/js/components.js";
+
+  if (!storage.token) location.href = "login.html";
+
+  renderHeader({ logout: true });
+  renderFooter();
+
+  const username = storage?.user?.nombre_completo ?? "Usuario";
+  document.getElementById("userName").textContent = username;
+ 
+  const busAsignado = await api.getBusByChoferUserID();
+  
+  document.getElementById("busInfo").innerHTML =
+   busAsignado ? 
+    `Bus: <strong>${busAsignado.numero_placa}</strong><br>
+    Ruta: <strong>${busAsignado.nombre_ruta}</strong><br>
+    Descripción: ${busAsignado.descripcion_ruta}`
+    : "No se encontró información del bus asignado.";
+
+  /* -------------------------------
+   TRACKING GPS
+  --------------------------------*/
+  function startTracking(intervalMs) {
+   if (!navigator.geolocation) {
+    document.getElementById("locationStatus").textContent = "Tu navegador no soporta geolocalización";
+    return;
+   }
+
+   setInterval(() => {
+    navigator.geolocation.getCurrentPosition(
+     pos => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude; // Cambiado de lng a lon
+      const acc = pos.coords.accuracy;      
+      
+      const payload ={
+        "idBus": busAsignado.id_bus,
+        "Lat": lat,
+        "Lon": lon,
+        "Acc": acc
+      }
+
+      api.SendLocation(payload);
+
+      document.getElementById("locationStatus").innerHTML =
+       `Lat: <strong>${lat.toFixed(6)}</strong><br>
+       Lon: <strong>${lon.toFixed(6)}</strong><br>
+       Acc: <strong>(±${acc} m)</strong>`;            
+     },
+     err => {
+      console.error("Error GPS:", err);
+      document.getElementById("locationStatus").textContent = `Error al obtener GPS: ${err.message}`;
+     },
+     { enableHighAccuracy: true,
+      timeout: 10000,      
+      maximumAge: 0 }
+    );
+   }, intervalMs);
+  }
+
+  startTracking(2000); // 2 segundos
+ </script>
+
+</body>
+</html>

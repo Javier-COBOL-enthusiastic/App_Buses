@@ -28,6 +28,7 @@ namespace Data.Repositories
                     cmd.Parameters.AddWithValue("@correo", nuevoUsuario.correo);
                     cmd.Parameters.AddWithValue("@usuario", nuevoUsuario.usuario);
                     cmd.Parameters.AddWithValue("@password", nuevoUsuario.password);
+                    cmd.Parameters.AddWithValue("@id_rol", nuevoUsuario.id_rol);
                     
                     cmd.ExecuteNonQuery();
                 }
@@ -77,8 +78,7 @@ namespace Data.Repositories
         public UsuarioValidado? Login(string nombreUsuario, string password)
         {
             UsuarioValidado? usuario = null;       
-            string spName = "sp_validar_usuario_login";
-
+            string spName = "sp_validar_usuario_login";            
 
                 using (SqlConnection cnx = _connector.CreateConnection())
                 using (SqlCommand cmd = new SqlCommand(spName, cnx))
@@ -96,7 +96,8 @@ namespace Data.Repositories
                                 id_usuario = reader.GetInt32(0),
                                 nombre_completo = reader.GetString(1),
                                 correo = reader.GetString(2),
-                                usuario = reader.GetString(3)
+                                id_rol = reader.GetInt32(3),
+                                usuario = reader.GetString(4),
                             };
                         }                        
                     }
