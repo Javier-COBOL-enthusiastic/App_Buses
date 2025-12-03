@@ -16,22 +16,19 @@
 ---
 
 ## Tecnologías usadas
-- **Backend:** C# (ASP.NET Core)  
+- **Backend:** C# (ASP.NET Core 9.0)  
 - **Frontend:** HTML, CSS y JavaScript puro  
 - **Base de datos:** SQL Server  
 
 ---
 
 ## Ejecución
-
-1. Abrir SQL Server y crear la base de datos `BusTrackSVDB`.
-2. Insertar datos de prueba para poder iniciar sesión y visualizar rutas y conductores.
-3. Abrir el proyecto en Visual Studio.
-4. Registrar el `DbContext`.
-5. Habilitar **CORS** si el frontend y backend están en dominios distintos.
-6. Seleccionar el proyecto **BusTrackSV** como proyecto de inicio.
-7. Presionar **F5** o **Ctrl + F5** para ejecutar.
-8. Verificar que el backend esté corriendo en `https://localhost:5000`.
-9. Abrir `login.html` en un navegador.
-10. Asegurarse de que los `fetch` apunten al endpoint correcto del backend.
+1. Instala .NET 9: https://dotnet.microsoft.com/
+2. Abre SQL Server Management y crea la base de datos con base_buses.sql
+3. En la carpeta BusTrackSV/, ejecuta:
+    dotnet restore
+    dotnet run
+4. Para ejecutar el Frontend escribe en una consola:
+    python -m http.server 5500 
+    y posteriormente abre http://localhost:5500
 
