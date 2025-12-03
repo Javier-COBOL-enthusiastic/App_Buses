@@ -2,23 +2,25 @@ import { storage } from "./storage.js";
 
 // Cambia a true para usar MOCK local
 export const USE_MOCK = false;
-export const BASE_URL = "http://localhost:5000";
+export const BASE_URL = "https://survival-publicly-sbjct-cooling.trycloudflare.com";
 
 async function req(path, method = "GET", body) {
   const headers = { "Content-Type": "application/json" };
-  if (storage.token) headers.Authorization = `Bearer ${storage.token}`;
+  if (storage.token) headers.Authorization = `Bearer ${storage.token}`;  
+  
 
   const r = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? JSON.stringify(body) : undefined,    
   });
+  
 
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
-
   // Algunos endpoints devuelven 204 / 202 sin body
   try {
-    return await r.json();
+    const d = await r.json();    
+    return d;
   } catch {
     return null;
   }
@@ -246,6 +248,11 @@ export const api = {
   // GET /ruta/coordenadas/{idRuta:int}
   // GET /buses/ids
   // GET /choferes/get
+
+  async GetLocation(idBus){    
+    const r = await req(`/buses/location/${idBus}`)
+    return r;
+  },
   async getALLRoutes() {
     const rutasIDs = await req(`/ruta/allids`, "GET");
     return rutasIDs
@@ -373,8 +380,7 @@ export const api = {
   async getChoferUsuario(idChofer) {    
     return req(`/choferes/usuario/${idChofer}`, "GET");
   },
-  async SendLocation(payload){
-    console.log(payload);
+  async SendLocation(payload){    
     return req(`/buses/location`, "POST", payload);
   },
   // PUT /buses/update  +  PUT /choferes/update / POST /choferes/add

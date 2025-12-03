@@ -9,8 +9,10 @@ public static class RutaController
     public static void MapRutaController(this WebApplication app)
     {
         var group = app.MapGroup("/ruta");
-        group.RequireAuthorization();
+                
+        group.RequireAuthorization();        
 
+        // --- Endpoints existentes ---
         group.MapGet("/allids", async (RutaService rutaService) =>
         {
             try
@@ -25,13 +27,13 @@ public static class RutaController
         });
 
         group.MapGet("/ids", async (HttpContext ctx, RutaService rutaService) =>
-        {
+        {            
             var userIdClaim = ctx.User.Claims.FirstOrDefault(c => c.Type == "userId");
             if (userIdClaim == null) return Results.Unauthorized();
 
             try
             {
-                var res = await Task.Run(() => rutaService.ObtenerRutasIDPorUsuario(int.Parse(userIdClaim.Value)));
+                var res = await Task.Run(() => rutaService.ObtenerRutasIDPorUsuario(int.Parse(userIdClaim.Value)));                
                 return Results.Ok(res);
             }
             catch (UserInvalidado) { return Results.Unauthorized(); }
@@ -52,7 +54,6 @@ public static class RutaController
             catch (UnauthorizedAccessException) { return Results.Forbid(); }
             catch (NullValue ex)
             {
-                // si es ID inválido -> 400, si es "no existe" -> 404
                 return ex.Message?.ToLower().Contains("no existe") == true
                     ? Results.NotFound(new { message = ex.Message })
                     : Results.BadRequest(new { message = ex.Message });

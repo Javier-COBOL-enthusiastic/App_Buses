@@ -183,6 +183,31 @@
       });
     }
 
+    async function updateActiveBusesLocation() {
+      if (!routeData || !routeData.teams || !routeData.markers) return;
+
+      const activeBuses = routeData.teams.filter(t => t.active);
+      for (const bus of activeBuses) {
+    
+        const loc = await api.GetLocation(bus.id);         
+        if (!loc) continue;
+        //console.log(loc);        
+        const latLng = [loc.lat, loc.lon];        
+        if (busMarkers[bus.id]) {
+          busMarkers[bus.id].setLatLng(latLng);
+          } else {
+          const circle = L.circle(latLng, {
+          radius: 20,          // ajusta el radio según lo que necesites
+          color: "red",       // color del borde
+          fillColor: "red",   // color del relleno
+          fillOpacity: 0.5
+          })
+          .addTo(map)
+          .bindPopup(`${bus.name} (${bus.driver})`);
+          busMarkers[bus.id] = circle;
+        }
+      }
+    }
     // Botón Editar con estado visual
     const btnEdit = document.getElementById('btnEdit');
     btnEdit.addEventListener('click', ()=>{
@@ -248,6 +273,7 @@
     });
 
     refresh();
+    setInterval(updateActiveBusesLocation, 2000);
   </script>
 </body>
 </html>
