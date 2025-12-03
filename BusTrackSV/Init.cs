@@ -55,6 +55,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
                 "http://localhost:5500",
                 "https://survival-publicly-sbjct-cooling.trycloudflare.com",
+                "https://invite-terrorist-destination-madrid.trycloudflare.com",
                 "http://10.74.10.247:5500"
             )
             .AllowAnyHeader()

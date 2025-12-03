@@ -247,9 +247,7 @@
         
         if(markersRuta.length > 0) {        
           const lastPt = puntosRuta[puntosRuta.length - 1];      
-                    
-          console.log("Punto ajustado:", snappedPt);
-          console.log("Último punto:", lastPt);        
+                              
           const distance = HaversineDistance(
             lastPt.latitud,
             lastPt.longitud,
